@@ -48,12 +48,32 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     if (endTime !== undefined) data.endTime = endTime;
     if (active !== undefined) data.active = Boolean(active);
 
-    const updated = await prisma.staff.update({
-      where: { id },
-      data,
-    });
+    let staff = await prisma.staff.findUnique({ where: { id } });
+    if (!staff && name) {
+      staff = await prisma.staff.findFirst({ where: { name } });
+    }
 
-    return NextResponse.json(updated);
+    if (staff) {
+      const updated = await prisma.staff.update({
+        where: { id: staff.id },
+        data,
+      });
+      return NextResponse.json(updated);
+    } else {
+      const created = await prisma.staff.create({
+        data: {
+          name: name || "Personel",
+          title: title || "Kuaför",
+          phone: phone || null,
+          email: email || null,
+          color: color || "#dc2626",
+          startTime: startTime || "09:00",
+          endTime: endTime || "20:00",
+          active: Boolean(active ?? true),
+        },
+      });
+      return NextResponse.json(created);
+    }
   } catch (error) {
     console.error("Staff PATCH error:", error);
     return NextResponse.json({ error: "Personel güncellenemedi." }, { status: 500 });
@@ -63,9 +83,12 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 export async function DELETE(request: NextRequest, { params }: Params) {
   try {
     const { id } = await params;
-    await prisma.staff.delete({
-      where: { id },
-    });
+    const existing = await prisma.staff.findUnique({ where: { id } });
+    if (existing) {
+      await prisma.staff.delete({
+        where: { id },
+      });
+    }
 
     return NextResponse.json({ success: true, message: "Personel silindi." });
   } catch (error) {

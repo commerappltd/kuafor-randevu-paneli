@@ -44,20 +44,38 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, phone, email, notes } = body;
+    const { name, phone, email, status, notes } = body;
 
     const data: any = {};
     if (name !== undefined) data.name = name;
     if (phone !== undefined) data.phone = phone;
     if (email !== undefined) data.email = email;
+    if (status !== undefined) data.status = status;
     if (notes !== undefined) data.notes = notes;
 
-    const updated = await prisma.customer.update({
-      where: { id },
-      data,
-    });
+    let customer = await prisma.customer.findUnique({ where: { id } });
+    if (!customer && phone) {
+      customer = await prisma.customer.findUnique({ where: { phone } });
+    }
 
-    return NextResponse.json(updated);
+    if (customer) {
+      const updated = await prisma.customer.update({
+        where: { id: customer.id },
+        data,
+      });
+      return NextResponse.json(updated);
+    } else {
+      const created = await prisma.customer.create({
+        data: {
+          name: name || "Müşteri",
+          phone: phone || "05000000000",
+          email: email || null,
+          status: status || "APPROVED",
+          notes: notes || null,
+        },
+      });
+      return NextResponse.json(created);
+    }
   } catch (error) {
     console.error("Customer PATCH error:", error);
     return NextResponse.json({ error: "Müşteri güncellenemedi." }, { status: 500 });
@@ -67,9 +85,12 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 export async function DELETE(request: NextRequest, { params }: Params) {
   try {
     const { id } = await params;
-    await prisma.customer.delete({
-      where: { id },
-    });
+    const existing = await prisma.customer.findUnique({ where: { id } });
+    if (existing) {
+      await prisma.customer.delete({
+        where: { id },
+      });
+    }
 
     return NextResponse.json({ success: true, message: "Müşteri silindi." });
   } catch (error) {

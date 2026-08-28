@@ -43,12 +43,31 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     if (description !== undefined) data.description = description;
     if (active !== undefined) data.active = Boolean(active);
 
-    const updated = await prisma.service.update({
-      where: { id },
-      data,
-    });
+    // Varsa güncelle, ID fallback ise isme göre bul, yoksa oluştur
+    let service = await prisma.service.findUnique({ where: { id } });
+    if (!service && name) {
+      service = await prisma.service.findFirst({ where: { name } });
+    }
 
-    return NextResponse.json(updated);
+    if (service) {
+      const updated = await prisma.service.update({
+        where: { id: service.id },
+        data,
+      });
+      return NextResponse.json(updated);
+    } else {
+      const created = await prisma.service.create({
+        data: {
+          name: name || "Yeni Hizmet",
+          category: category || "Saç Kesimi",
+          durationMinutes: Number(durationMinutes) || 30,
+          price: Number(price) || 200,
+          description: description || null,
+          active: Boolean(active ?? true),
+        },
+      });
+      return NextResponse.json(created);
+    }
   } catch (error) {
     console.error("Service PATCH error:", error);
     return NextResponse.json({ error: "Hizmet güncellenemedi." }, { status: 500 });
@@ -58,9 +77,14 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 export async function DELETE(request: NextRequest, { params }: Params) {
   try {
     const { id } = await params;
-    await prisma.service.delete({
-      where: { id },
-    });
+    
+    // Güvenli silme: Varsa sil
+    const existing = await prisma.service.findUnique({ where: { id } });
+    if (existing) {
+      await prisma.service.delete({
+        where: { id },
+      });
+    }
 
     return NextResponse.json({ success: true, message: "Hizmet silindi." });
   } catch (error) {
