@@ -12,6 +12,8 @@ model Customer {
   name         String
   phone        String        @unique
   email        String?
+  password     String?       // Müşteri şifresi (Giriş için)
+  status       String        @default("PENDING_APPROVAL") // PENDING_APPROVAL (Onay Bekliyor), APPROVED (Onaylandı), REJECTED (Reddedildi)
   notes        String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -25,9 +27,9 @@ model Staff {
   phone        String?
   email        String?
   avatarUrl    String?
-  color        String        @default("#3b82f6") // Takvimde ayırt edici renk (#6366f1, #10b981, #f59e0b, #ec4899)
+  color        String        @default("#dc2626") // Takvimde ayırt edici renk (#dc2626, #2563eb, #059669, #d97706)
   startTime    String        @default("09:00")
-  endTime      String        @default("19:00")
+  endTime      String        @default("20:00")
   active       Boolean       @default(true)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -37,8 +39,8 @@ model Staff {
 model Service {
   id              String        @id @default(cuid())
   name            String
-  category        String        // "Saç Kesimi", "Sakal & Bakım", "Renklendirme", "Özel Bakım & Spa"
-  durationMinutes Int           @default(30)
+  category        String        // "Saç Kesimi", "Sakal & Bakım", "Kombin Paket", "Özel Paket", "Renklendirme", "Özel Bakım & Spa"
+  durationMinutes Int           @default(35)
   price           Float
   description     String?
   active          Boolean       @default(true)
@@ -57,7 +59,7 @@ model Appointment {
   service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   
   appointmentDate DateTime // Tarih
-  dateStr         String   // "YYYY-MM-DD" kolay filtreleme ve takvim eşleşmesi için
+  dateStr         String   // "YYYY-MM-DD"
   startTime       String   // "10:30"
   endTime         String   // "11:15"
   

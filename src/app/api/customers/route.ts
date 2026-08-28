@@ -5,8 +5,13 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search");
+    const status = searchParams.get("status");
 
     const where: any = {};
+    if (status) {
+      where.status = status;
+    }
+
     if (search) {
       where.OR = [
         { name: { contains: search } },
@@ -26,7 +31,7 @@ export async function GET(request: NextRequest) {
           orderBy: { dateStr: "desc" },
         },
       },
-      orderBy: { name: "asc" },
+      orderBy: { createdAt: "desc" },
     });
 
     // Her müşterinin toplam harcamasını ve randevu sayısını hesaplayalım
@@ -52,7 +57,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, phone, email, notes } = body;
+    const { name, phone, email, password, status, notes } = body;
 
     if (!name || !phone) {
       return NextResponse.json({ error: "İsim ve telefon zorunludur." }, { status: 400 });
@@ -74,6 +79,8 @@ export async function POST(request: NextRequest) {
         name,
         phone,
         email: email || null,
+        password: password || null,
+        status: status || "APPROVED", // Admin panelden eklenen müşteriler varsayılan olarak APPROVED olur
         notes: notes || null,
       },
     });

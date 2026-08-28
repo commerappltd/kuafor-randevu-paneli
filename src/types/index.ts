@@ -1,8 +1,12 @@
+export type CustomerStatus = "PENDING_APPROVAL" | "APPROVED" | "REJECTED";
+
 export interface Customer {
   id: string;
   name: string;
   phone: string;
   email?: string | null;
+  password?: string | null;
+  status: CustomerStatus;
   notes?: string | null;
   createdAt?: string | Date;
   updatedAt?: string | Date;
@@ -66,6 +70,7 @@ export interface DashboardStats {
   todayRevenue: number;
   todayPendingCount: number;
   totalCustomersCount: number;
+  pendingCustomersCount?: number;
   activeStaffCount: number;
   monthlyRevenue: number;
 }

@@ -162,13 +162,15 @@ async function main() {
 
   console.log(`✓ ${services.length} hizmet tanımlandı.`);
 
-  // 3. Örnek Müşteriler
+  // 3. Müşteriler (Onaylı ve Onay Bekleyenler)
   const customers = await Promise.all([
     prisma.customer.create({
       data: {
         name: "Mehmet Özkan",
         phone: "0532 111 22 33",
         email: "mehmet.ozkan@gmail.com",
+        password: "123",
+        status: "APPROVED",
         notes: "Saçlar yanlar 2 numara, üstler makas. Kahve ikramı: Sade.",
       },
     }),
@@ -177,6 +179,8 @@ async function main() {
         name: "Serkan Aydın",
         phone: "0533 444 55 66",
         email: "serkan.aydin@hotmail.com",
+        password: "123",
+        status: "APPROVED",
         notes: "Sakal şekillendirme sivri çene stili.",
       },
     }),
@@ -185,6 +189,8 @@ async function main() {
         name: "Volkan Çelik",
         phone: "0535 777 88 99",
         email: "volkan.celik@gmail.com",
+        password: "123",
+        status: "APPROVED",
         notes: "VIP Kombin müşterisi. Cilt hassas, özel tonik kullanılır.",
       },
     }),
@@ -193,12 +199,24 @@ async function main() {
         name: "Emre Koç",
         phone: "0536 999 00 11",
         email: "emre.koc@yahoo.com",
-        notes: "Haftalık fön ve ense düzeltme müdavimi.",
+        password: "123",
+        status: "PENDING_APPROVAL", // Yeni kayıt, onay bekliyor!
+        notes: "Mobil uygulamadan yeni kayıt oldu. Onay bekleniyor.",
+      },
+    }),
+    prisma.customer.create({
+      data: {
+        name: "Kaan Arslan",
+        phone: "0537 222 33 44",
+        email: "kaan.arslan@gmail.com",
+        password: "123",
+        status: "PENDING_APPROVAL", // Yeni kayıt, onay bekliyor!
+        notes: "Google Play üzerinden indirip kayıt oldu.",
       },
     }),
   ]);
 
-  console.log(`✓ ${customers.length} müşteri kaydı oluşturuldu.`);
+  console.log(`✓ ${customers.length} müşteri kaydı oluşturuldu (2 tanesi onay bekliyor).`);
 
   // 4. Örnek Randevular (Bugün ve Hafta)
   const todayStr = format(new Date(), "yyyy-MM-dd");
@@ -242,7 +260,7 @@ async function main() {
         totalPrice: 850,
       },
       {
-        customerId: customers[3].id,
+        customerId: customers[0].id,
         staffId: staffMembers[0].id,
         serviceId: services[1].id, // Sakal
         appointmentDate: new Date(`${todayStr}T16:00:00`),
