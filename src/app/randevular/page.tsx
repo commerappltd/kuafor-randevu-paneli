@@ -1,28 +1,55 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import Header from "@/components/admin/Header";
 import AppointmentModal from "@/components/admin/AppointmentModal";
 import WhatsAppModal from "@/components/admin/WhatsAppModal";
-import { format } from "date-fns";
-import { formatDateTR, formatPrice, APPOINTMENT_STATUS } from "@/lib/utils";
+import { formatPrice, formatDateTR } from "@/lib/utils";
 import { Appointment, Staff } from "@/types";
 import {
   Search,
   Filter,
-  Calendar,
-  Clock,
   Scissors,
   UserCheck,
-  Phone,
-  Trash2,
-  Edit2,
-  CheckCircle,
-  Check,
-  XCircle,
+  Clock,
   MessageSquare,
+  CheckCircle,
+  XCircle,
+  Edit2,
+  Trash2,
+  Phone,
 } from "lucide-react";
+
+const APPOINTMENT_STATUS: Record<
+  string,
+  { label: string; bg: string; text: string; dot: string }
+> = {
+  PENDING: {
+    label: "Onay Bekliyor",
+    bg: "bg-amber-500/15 border-amber-500/30 text-amber-400",
+    text: "text-amber-400",
+    dot: "bg-amber-400",
+  },
+  CONFIRMED: {
+    label: "Onaylandı",
+    bg: "bg-blue-500/15 border-blue-500/30 text-blue-400",
+    text: "text-blue-400",
+    dot: "bg-blue-400",
+  },
+  COMPLETED: {
+    label: "Tamamlandı",
+    bg: "bg-emerald-500/15 border-emerald-500/30 text-emerald-400",
+    text: "text-emerald-400",
+    dot: "bg-emerald-400",
+  },
+  CANCELLED: {
+    label: "İptal Edildi",
+    bg: "bg-red-500/15 border-red-500/30 text-red-400",
+    text: "text-red-400",
+    dot: "bg-red-400",
+  },
+};
 
 export default function RandevularPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -35,7 +62,7 @@ export default function RandevularPage() {
   const [staffFilter, setStaffFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState("");
 
-  // Modal
+  // Modals
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [whatsAppAppointment, setWhatsAppAppointment] = useState<Appointment | null>(null);
@@ -49,26 +76,25 @@ export default function RandevularPage() {
     }
   };
 
-  const fetchAppointments = useCallback(async () => {
-    setLoading(true);
+  const fetchAppointments = async () => {
     try {
-      const params = new URLSearchParams();
-      if (search) params.append("search", search);
-      if (statusFilter !== "ALL") params.append("status", statusFilter);
-      if (staffFilter !== "ALL") params.append("staffId", staffFilter);
-      if (dateFilter) params.append("date", dateFilter);
+      setLoading(true);
+      let url = "/api/appointments?";
+      if (search) url += `search=${encodeURIComponent(search)}&`;
+      if (statusFilter !== "ALL") url += `status=${statusFilter}&`;
+      if (staffFilter !== "ALL") url += `staffId=${staffFilter}&`;
+      if (dateFilter) url += `date=${dateFilter}&`;
 
-      const res = await fetch(`/api/appointments?${params.toString()}`);
+      const res = await fetch(url);
       if (res.ok) {
-        const data = await res.json();
-        setAppointments(data);
+        setAppointments(await res.json());
       }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, staffFilter, dateFilter]);
+  };
 
   useEffect(() => {
     fetchStaff();
@@ -76,7 +102,7 @@ export default function RandevularPage() {
 
   useEffect(() => {
     fetchAppointments();
-  }, [fetchAppointments]);
+  }, [search, statusFilter, staffFilter, dateFilter]);
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
@@ -116,17 +142,17 @@ export default function RandevularPage() {
 
       <main className="p-4 sm:p-8 space-y-4 sm:space-y-6 flex-1">
         {/* Filters Bar */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <div className="bg-[#12131a] p-4 sm:p-5 rounded-2xl border border-zinc-800/90 shadow-lg space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
             {/* Search */}
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+              <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-3" />
               <input
                 type="text"
                 placeholder="Müşteri adı veya telefon..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-zinc-800 bg-[#0c0d14] text-xs font-medium text-white placeholder:text-zinc-600 focus:outline-none focus:border-red-600"
               />
             </div>
 
@@ -135,7 +161,7 @@ export default function RandevularPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-800 bg-[#0c0d14] text-xs font-medium text-white focus:outline-none focus:border-red-600"
               >
                 <option value="ALL">Tüm Durumlar</option>
                 <option value="PENDING">Beklemede (Onay Bekleyen)</option>
@@ -150,7 +176,7 @@ export default function RandevularPage() {
               <select
                 value={staffFilter}
                 onChange={(e) => setStaffFilter(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-800 bg-[#0c0d14] text-xs font-medium text-white focus:outline-none focus:border-red-600"
               >
                 <option value="ALL">Tüm Uzmanlar</option>
                 {staffList.map((st) => (
@@ -167,12 +193,12 @@ export default function RandevularPage() {
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                className="w-full px-3.5 py-2 rounded-xl border border-zinc-800 bg-[#0c0d14] text-xs font-medium text-white focus:outline-none focus:border-red-600"
               />
               {dateFilter && (
                 <button
                   onClick={() => setDateFilter("")}
-                  className="text-xs text-rose-600 hover:underline shrink-0"
+                  className="text-xs text-red-400 hover:underline shrink-0"
                 >
                   Temizle
                 </button>
@@ -182,11 +208,11 @@ export default function RandevularPage() {
         </div>
 
         {/* Appointments Table */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div className="bg-[#12131a] rounded-2xl border border-zinc-800/90 shadow-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-slate-500 uppercase tracking-wider font-bold">
+                <tr className="border-b border-zinc-800 bg-[#0c0d14] text-zinc-400 uppercase tracking-wider font-bold">
                   <th className="py-3.5 px-4">Tarih & Saat</th>
                   <th className="py-3.5 px-4">Müşteri</th>
                   <th className="py-3.5 px-4">Hizmet</th>
@@ -196,10 +222,10 @@ export default function RandevularPage() {
                   <th className="py-3.5 px-4 text-right">İşlemler</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+              <tbody className="divide-y divide-zinc-800/80 font-medium text-zinc-300">
                 {appointments.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-slate-400">
+                    <td colSpan={7} className="py-12 text-center text-zinc-500">
                       Filtrelere uygun randevu bulunamadı.
                     </td>
                   </tr>
@@ -208,50 +234,50 @@ export default function RandevularPage() {
                     const statusConfig = APPOINTMENT_STATUS[app.status] || APPOINTMENT_STATUS.PENDING;
 
                     return (
-                      <tr key={app.id} className="hover:bg-slate-50/70 transition-colors">
+                      <tr key={app.id} className="hover:bg-zinc-800/30 transition-colors">
                         {/* Tarih & Saat */}
                         <td className="py-3.5 px-4 whitespace-nowrap">
-                          <div className="font-bold text-slate-900">{formatDateTR(app.dateStr, "d MMM yyyy")}</div>
-                          <div className="text-slate-500 text-[11px] flex items-center gap-1 mt-0.5">
-                            <Clock className="w-3 h-3 text-slate-400" />
+                          <div className="font-bold text-white">{formatDateTR(app.dateStr, "d MMM yyyy")}</div>
+                          <div className="text-zinc-400 text-[11px] flex items-center gap-1 mt-0.5">
+                            <Clock className="w-3 h-3 text-red-500" />
                             {app.startTime} - {app.endTime}
                           </div>
                         </td>
 
                         {/* Müşteri */}
                         <td className="py-3.5 px-4">
-                          <div className="font-bold text-slate-900">{app.customer.name}</div>
+                          <div className="font-bold text-white">{app.customer?.name}</div>
                           <a
-                            href={`tel:${app.customer.phone}`}
-                            className="text-slate-500 hover:text-amber-600 text-[11px] flex items-center gap-1 mt-0.5"
+                            href={`tel:${app.customer?.phone}`}
+                            className="text-zinc-400 hover:text-red-400 text-[11px] flex items-center gap-1 mt-0.5"
                           >
                             <Phone className="w-3 h-3" />
-                            {app.customer.phone}
+                            {app.customer?.phone}
                           </a>
                         </td>
 
                         {/* Hizmet */}
                         <td className="py-3.5 px-4">
-                          <div className="font-semibold text-slate-800 flex items-center gap-1.5">
-                            <Scissors className="w-3.5 h-3.5 text-amber-600" />
-                            {app.service.name}
+                          <div className="font-semibold text-white flex items-center gap-1.5">
+                            <Scissors className="w-3.5 h-3.5 text-red-500" />
+                            {app.service?.name}
                           </div>
-                          <div className="text-[11px] text-slate-400">{app.service.durationMinutes} dakika</div>
+                          <div className="text-[11px] text-zinc-500">{app.service?.durationMinutes} dakika</div>
                         </td>
 
                         {/* Personel */}
                         <td className="py-3.5 px-4">
                           <span
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-white font-semibold text-[11px]"
-                            style={{ backgroundColor: app.staff.color || "#4f46e5" }}
+                            style={{ backgroundColor: app.staff?.color || "#dc2626" }}
                           >
                             <UserCheck className="w-3 h-3" />
-                            {app.staff.name}
+                            {app.staff?.name}
                           </span>
                         </td>
 
                         {/* Ücret */}
-                        <td className="py-3.5 px-4 font-bold text-slate-900 whitespace-nowrap">
+                        <td className="py-3.5 px-4 font-black text-red-400 whitespace-nowrap">
                           {formatPrice(app.totalPrice)}
                         </td>
 
@@ -271,7 +297,7 @@ export default function RandevularPage() {
                             {/* WhatsApp Bildirim Butonu */}
                             <button
                               onClick={() => setWhatsAppAppointment(app)}
-                              className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
+                              className="p-1.5 rounded-lg bg-emerald-950/40 text-emerald-400 hover:bg-emerald-900/50 transition-colors border border-emerald-800/40"
                               title="WhatsApp ile Hatırlat"
                             >
                               <MessageSquare className="w-4 h-4" />
@@ -280,37 +306,49 @@ export default function RandevularPage() {
                             {app.status === "PENDING" && (
                               <button
                                 onClick={() => handleStatusChange(app.id, "CONFIRMED")}
-                                className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                                className="p-1.5 rounded-lg bg-blue-950/40 text-blue-400 hover:bg-blue-900/50 transition-colors border border-blue-800/40"
                                 title="Onayla"
                               >
-                                <Check className="w-4 h-4" />
+                                <CheckCircle className="w-4 h-4" />
                               </button>
                             )}
 
                             {app.status === "CONFIRMED" && (
                               <button
                                 onClick={() => handleStatusChange(app.id, "COMPLETED")}
-                                className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
-                                title="Tamamlandı Yap"
+                                className="p-1.5 rounded-lg bg-emerald-950/40 text-emerald-400 hover:bg-emerald-900/50 transition-colors border border-emerald-800/40"
+                                title="Tamamlandı Olarak İşaretle"
                               >
                                 <CheckCircle className="w-4 h-4" />
                               </button>
                             )}
 
+                            {app.status !== "CANCELLED" && app.status !== "COMPLETED" && (
+                              <button
+                                onClick={() => handleStatusChange(app.id, "CANCELLED")}
+                                className="p-1.5 rounded-lg bg-red-950/40 text-red-400 hover:bg-red-900/50 transition-colors border border-red-800/40"
+                                title="İptal Et"
+                              >
+                                <XCircle className="w-4 h-4" />
+                              </button>
+                            )}
+
+                            {/* Düzenle */}
                             <button
                               onClick={() => {
                                 setEditingAppointment(app);
                                 setIsModalOpen(true);
                               }}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                              className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
                               title="Düzenle"
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
 
+                            {/* Sil */}
                             <button
                               onClick={() => handleDelete(app.id)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                              className="p-1.5 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-950/30 transition-colors"
                               title="Sil"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -327,7 +365,7 @@ export default function RandevularPage() {
         </div>
       </main>
 
-      {/* Appointment Modal */}
+      {/* Appointment Create/Edit Modal */}
       <AppointmentModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -341,8 +379,8 @@ export default function RandevularPage() {
       {/* WhatsApp Modal */}
       <WhatsAppModal
         isOpen={Boolean(whatsAppAppointment)}
-        onClose={() => setWhatsAppAppointment(null)}
         appointment={whatsAppAppointment}
+        onClose={() => setWhatsAppAppointment(null)}
       />
     </AdminLayout>
   );

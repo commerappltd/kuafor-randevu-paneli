@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import Header from "@/components/admin/Header";
 import { Staff } from "@/types";
@@ -12,42 +12,42 @@ import {
   Mail,
   Edit2,
   Trash2,
-  Calendar,
   X,
   Palette,
+  Calendar,
 } from "lucide-react";
 
 const COLOR_PRESETS = [
-  { name: "Indigo", hex: "#4f46e5" },
-  { name: "Pembe / Fuşya", hex: "#db2777" },
+  { name: "Yakut Kırmızısı", hex: "#dc2626" },
+  { name: "Koyu Bordo", hex: "#991b1b" },
+  { name: "Altın Sarısı", hex: "#d97706" },
+  { name: "Safir Mavisi", hex: "#2563eb" },
   { name: "Zümrüt Yeşili", hex: "#059669" },
-  { name: "Amber / Altın", hex: "#d97706" },
-  { name: "Mor / Violet", hex: "#7c3aed" },
-  { name: "Gök Mavisi", hex: "#0284c7" },
-  { name: "Gül Kurusu", hex: "#e11d48" },
-  { name: "Teal", hex: "#0d9488" },
+  { name: "Ametist Moru", hex: "#7c3aed" },
 ];
 
 export default function PersonelPage() {
   const [staffList, setStaffList] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Modal states
+  // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
+
+  // Form State
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [color, setColor] = useState("#4f46e5");
   const [startTime, setStartTime] = useState("09:00");
-  const [endTime, setEndTime] = useState("19:00");
+  const [endTime, setEndTime] = useState("20:00");
+  const [color, setColor] = useState("#dc2626");
   const [active, setActive] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const fetchStaff = useCallback(async () => {
-    setLoading(true);
+  const fetchStaff = async () => {
     try {
+      setLoading(true);
       const res = await fetch("/api/staff");
       if (res.ok) {
         setStaffList(await res.json());
@@ -57,11 +57,11 @@ export default function PersonelPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
     fetchStaff();
-  }, [fetchStaff]);
+  }, []);
 
   const handleOpenModal = (staff?: Staff) => {
     setErrorMsg(null);
@@ -71,19 +71,19 @@ export default function PersonelPage() {
       setTitle(staff.title);
       setPhone(staff.phone || "");
       setEmail(staff.email || "");
-      setColor(staff.color || "#4f46e5");
-      setStartTime(staff.startTime || "09:00");
-      setEndTime(staff.endTime || "19:00");
+      setStartTime(staff.startTime);
+      setEndTime(staff.endTime);
+      setColor(staff.color || "#dc2626");
       setActive(staff.active);
     } else {
       setEditingStaff(null);
       setName("");
-      setTitle("Kuaför & Stilist");
+      setTitle("");
       setPhone("");
       setEmail("");
-      setColor(COLOR_PRESETS[staffList.length % COLOR_PRESETS.length].hex);
       setStartTime("09:00");
-      setEndTime("19:00");
+      setEndTime("20:00");
+      setColor("#dc2626");
       setActive(true);
     }
     setIsModalOpen(true);
@@ -99,9 +99,9 @@ export default function PersonelPage() {
         title,
         phone,
         email,
-        color,
         startTime,
         endTime,
+        color,
         active,
       };
 
@@ -162,14 +162,14 @@ export default function PersonelPage() {
 
       <main className="p-4 sm:p-8 space-y-4 sm:space-y-6 flex-1">
         {/* Top bar */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
-          <p className="text-xs text-slate-500 font-medium">
-            Toplam <span className="font-bold text-slate-900">{staffList.length}</span> uzman kuaför tanımlı
+        <div className="bg-[#12131a] p-4 rounded-2xl border border-zinc-800/90 shadow-lg flex items-center justify-between">
+          <p className="text-xs text-zinc-400 font-medium">
+            Toplam <span className="font-black text-white">{staffList.length}</span> uzman kuaför tanımlı
           </p>
 
           <button
             onClick={() => handleOpenModal()}
-            className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold shadow-xs transition-all"
+            className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-red-600/30 transition-all hover:scale-[1.02]"
           >
             <Plus className="w-4 h-4" />
             Yeni Personel Ekle
@@ -181,8 +181,8 @@ export default function PersonelPage() {
           {staffList.map((staff: any) => (
             <div
               key={staff.id}
-              className={`bg-white rounded-2xl p-6 border shadow-xs hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden ${
-                staff.active ? "border-slate-200/80" : "border-slate-200 opacity-60 bg-slate-50/50"
+              className={`bg-[#12131a] rounded-2xl p-6 border shadow-md hover:border-zinc-700 transition-all flex flex-col justify-between relative overflow-hidden ${
+                staff.active ? "border-zinc-800/90" : "border-zinc-800/40 opacity-50 bg-[#0c0d14]"
               }`}
             >
               {/* Top Color Accent Ribbon */}
@@ -196,28 +196,28 @@ export default function PersonelPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div
-                      className="w-12 h-12 rounded-2xl text-white font-bold text-lg flex items-center justify-center shadow-xs"
+                      className="w-12 h-12 rounded-2xl text-white font-black text-lg flex items-center justify-center shadow-md"
                       style={{ backgroundColor: staff.color }}
                     >
                       {staff.name.charAt(0)}
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm text-slate-900">{staff.name}</h4>
-                      <p className="text-xs text-slate-500 font-medium">{staff.title}</p>
+                      <h4 className="font-bold text-sm text-white">{staff.name}</h4>
+                      <p className="text-xs text-zinc-400 font-medium">{staff.title}</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleOpenModal(staff)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                      className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
                       title="Düzenle"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleDelete(staff.id)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                      className="p-1.5 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-950/30 transition-colors"
                       title="Sil"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -226,11 +226,11 @@ export default function PersonelPage() {
                 </div>
 
                 {/* Contact & Hours */}
-                <div className="mt-4 space-y-2 text-xs text-slate-600">
+                <div className="mt-4 space-y-2 text-xs text-zinc-300">
                   {staff.phone && (
                     <div className="flex items-center gap-2">
-                      <Phone className="w-3.5 h-3.5 text-slate-400" />
-                      <a href={`tel:${staff.phone}`} className="hover:text-amber-600">
+                      <Phone className="w-3.5 h-3.5 text-red-500" />
+                      <a href={`tel:${staff.phone}`} className="hover:text-red-400">
                         {staff.phone}
                       </a>
                     </div>
@@ -238,33 +238,33 @@ export default function PersonelPage() {
 
                   {staff.email && (
                     <div className="flex items-center gap-2">
-                      <Mail className="w-3.5 h-3.5 text-slate-400" />
+                      <Mail className="w-3.5 h-3.5 text-zinc-500" />
                       <span>{staff.email}</span>
                     </div>
                   )}
 
                   <div className="flex items-center gap-2 pt-1">
-                    <Clock className="w-3.5 h-3.5 text-slate-400" />
+                    <Clock className="w-3.5 h-3.5 text-red-500" />
                     <span>
-                      Mesai: <strong className="text-slate-800">{staff.startTime} - {staff.endTime}</strong>
+                      Mesai: <strong className="text-white">{staff.startTime} - {staff.endTime}</strong>
                     </span>
                   </div>
                 </div>
               </div>
 
               {/* Bottom Actions & Total Count */}
-              <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+              <div className="mt-5 pt-4 border-t border-zinc-800/80 flex items-center justify-between">
+                <span className="text-[11px] text-zinc-400 font-medium flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-red-500" />
                   {staff._count?.appointments || 0} Randevu
                 </span>
 
                 <button
                   onClick={() => handleToggleActive(staff)}
-                  className={`text-xs font-semibold px-2.5 py-1 rounded-full border transition-colors ${
+                  className={`text-xs font-bold px-2.5 py-1 rounded-full border transition-colors ${
                     staff.active
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
-                      : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200"
+                      ? "bg-emerald-950/40 text-emerald-400 border-emerald-800/40 hover:bg-emerald-900/50"
+                      : "bg-zinc-900 text-zinc-500 border-zinc-800 hover:bg-zinc-800"
                   }`}
                 >
                   {staff.active ? "Görevde (Aktif)" : "İzinde (Pasif)"}
@@ -277,26 +277,26 @@ export default function PersonelPage() {
 
       {/* Staff Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
-            <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
-              <h3 className="font-bold text-base">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
+          <div className="bg-[#12131a] rounded-2xl max-w-md w-full shadow-2xl border border-zinc-800 overflow-hidden">
+            <div className="px-6 py-4.5 bg-[#0c0d14] text-white flex items-center justify-between border-b border-zinc-800">
+              <h3 className="font-bold text-base text-white">
                 {editingStaff ? "Personeli Düzenle" : "Yeni Personel Ekle"}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white">
+              <button onClick={() => setIsModalOpen(false)} className="text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-zinc-800">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleSave} className="p-6 space-y-4">
               {errorMsg && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+                <div className="p-3 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs">
                   {errorMsg}
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">
                   Ad Soyad *
                 </label>
                 <input
@@ -305,12 +305,12 @@ export default function PersonelPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Örn: Ahmet Yılmaz"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-800 bg-[#0c0d14] text-white text-xs font-medium focus:outline-none focus:border-red-600"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">
                   Unvan / Uzmanlık *
                 </label>
                 <input
@@ -319,13 +319,13 @@ export default function PersonelPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Örn: Master Berber & Stilist"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-800 bg-[#0c0d14] text-white text-xs font-medium focus:outline-none focus:border-red-600"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">
                     Telefon
                   </label>
                   <input
@@ -333,11 +333,11 @@ export default function PersonelPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="0532 000 00 00"
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                    className="w-full px-3.5 py-2 rounded-xl border border-zinc-800 bg-[#0c0d14] text-white text-xs font-medium placeholder:text-zinc-600 focus:outline-none focus:border-red-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">
                     E-posta
                   </label>
                   <input
@@ -345,14 +345,14 @@ export default function PersonelPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="ornek@salon.com"
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                    className="w-full px-3.5 py-2 rounded-xl border border-zinc-800 bg-[#0c0d14] text-white text-xs font-medium placeholder:text-zinc-600 focus:outline-none focus:border-red-600"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">
                     Mesai Başlangıç
                   </label>
                   <input
@@ -360,11 +360,11 @@ export default function PersonelPage() {
                     required
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                    className="w-full px-3.5 py-2 rounded-xl border border-zinc-800 bg-[#0c0d14] text-white text-xs font-medium focus:outline-none focus:border-red-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">
                     Mesai Bitiş
                   </label>
                   <input
@@ -372,15 +372,15 @@ export default function PersonelPage() {
                     required
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                    className="w-full px-3.5 py-2 rounded-xl border border-zinc-800 bg-[#0c0d14] text-white text-xs font-medium focus:outline-none focus:border-red-600"
                   />
                 </div>
               </div>
 
               {/* Color Presets */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2 flex items-center gap-1.5">
-                  <Palette className="w-3.5 h-3.5 text-amber-600" />
+                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2 flex items-center gap-1.5">
+                  <Palette className="w-3.5 h-3.5 text-red-500" />
                   Takvim Ayırt Edici Renk
                 </label>
                 <div className="flex flex-wrap items-center gap-2.5">
@@ -390,7 +390,7 @@ export default function PersonelPage() {
                       type="button"
                       onClick={() => setColor(preset.hex)}
                       className={`w-7 h-7 rounded-full transition-transform ${
-                        color === preset.hex ? "scale-125 ring-2 ring-slate-900 ring-offset-2" : "hover:scale-110"
+                        color === preset.hex ? "scale-125 ring-2 ring-white ring-offset-2 ring-offset-[#12131a]" : "hover:scale-110 opacity-70"
                       }`}
                       style={{ backgroundColor: preset.hex }}
                       title={preset.name}
@@ -405,24 +405,24 @@ export default function PersonelPage() {
                   id="staffActiveCheck"
                   checked={active}
                   onChange={(e) => setActive(e.target.checked)}
-                  className="w-4 h-4 text-amber-600 rounded"
+                  className="w-4 h-4 accent-red-600 rounded"
                 />
-                <label htmlFor="staffActiveCheck" className="text-xs font-semibold text-slate-700">
+                <label htmlFor="staffActiveCheck" className="text-xs font-semibold text-zinc-300">
                   Personel aktif ve randevu kabul ediyor
                 </label>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
+              <div className="pt-3 border-t border-zinc-800 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-zinc-400 hover:bg-zinc-800 hover:text-white"
                 >
                   Vazgeç
                 </button>
                 <button
                   type="submit"
-                  className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold shadow-xs"
+                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-red-600/30 transition-all"
                 >
                   {editingStaff ? "Güncelle" : "Kaydet"}
                 </button>
