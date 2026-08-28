@@ -22,15 +22,147 @@ import {
   Check,
   Building,
   Flame,
+  Star,
 } from "lucide-react";
+
+const DEFAULT_SERVICES: Service[] = [
+  {
+    id: "srv-sac-kesim",
+    name: "Klasik Saç Kesimi & Yıkama",
+    category: "Saç Kesimi",
+    durationMinutes: 35,
+    price: 450,
+    description: "Kişiye özel saç kesimi, argan yağlı yıkama, ferahlatıcı saç masajı ve wax/fön şekillendirme.",
+    active: true,
+  },
+  {
+    id: "srv-sakal-tirasi",
+    name: "Sakal Tıraşı & Sakal Tasarımı",
+    category: "Sakal & Bakım",
+    durationMinutes: 25,
+    price: 250,
+    description: "Geleneksel ustura veya makine ile sakal şekillendirme, sıcak buhar havlusu ve sakal bakım yağı.",
+    active: true,
+  },
+  {
+    id: "srv-sac-sakal-kombin",
+    name: "Saç + Sakal Kombin Bakım Paketi",
+    category: "Kombin Paket",
+    durationMinutes: 50,
+    price: 600,
+    description: "En çok tercih edilen! Detaylı saç kesimi, sakal dizaynı, saç yıkama, sıcak havlu kompresi ve tonik.",
+    active: true,
+  },
+  {
+    id: "srv-vip-full-bakim",
+    name: "VIP Saç & Sakal + Cilt Maskesi (Full Bakım)",
+    category: "Kombin Paket",
+    durationMinutes: 65,
+    price: 850,
+    description: "Komple saç-sakal kesimi, gözenek açıcı buhar, siyah nokta/kil maskesi ve ferahlatıcı ense masajı.",
+    active: true,
+  },
+  {
+    id: "srv-damat-vip",
+    name: "Damat & Özel Gün VIP Bakım Paketi",
+    category: "Özel Paket",
+    durationMinutes: 90,
+    price: 1500,
+    description: "Özel gün seansı: Saç kesimi, sakal tasarımı, medikal cilt bakımı, saç botoksu, el bakımı ve styling.",
+    active: true,
+  },
+  {
+    id: "srv-sac-boyama",
+    name: "Saç Boyama & Beyaz Kapatma",
+    category: "Renklendirme",
+    durationMinutes: 45,
+    price: 750,
+    description: "Doğal tonlarda saç veya sakal renk kırıcı/beyaz kapatıcı profesyonel boya uygulaması.",
+    active: true,
+  },
+  {
+    id: "srv-keratin",
+    name: "Keratin & Saç Botoksu (Düzleştirme)",
+    category: "Özel Bakım & Spa",
+    durationMinutes: 60,
+    price: 950,
+    description: "Yıpranmış saçlar için yoğun keratin yüklemesi, elektriklenme önleyici pürüzsüzleştirme.",
+    active: true,
+  },
+  {
+    id: "srv-fon",
+    name: "Saç Yıkama & Profesyonel Fön",
+    category: "Saç Kesimi",
+    durationMinutes: 20,
+    price: 200,
+    description: "Canlandırıcı şampuan ve saç kremi uygulaması sonrası gün boyu kalıcı profesyonel fön.",
+    active: true,
+  },
+  {
+    id: "srv-agda-kas",
+    name: "Yüz Ağdası & Kaş Dizaynı",
+    category: "Sakal & Bakım",
+    durationMinutes: 15,
+    price: 150,
+    description: "Kulak, burun ağdası, elmacık kemiği ağdası ve ip/cımbızla kaş toparlama işlemi.",
+    active: true,
+  },
+];
+
+const DEFAULT_STAFF: Staff[] = [
+  {
+    id: "st-ali-karayel",
+    name: "Ali Karayel",
+    title: "Kurucu & Master Stilist",
+    phone: "+90 532 100 20 30",
+    email: "ali@kuaforalikarayel.com",
+    color: "#dc2626",
+    startTime: "09:00",
+    endTime: "20:00",
+    active: true,
+  },
+  {
+    id: "st-emre-yildiz",
+    name: "Emre Yıldız",
+    title: "Kıdemli Saç Tasarımcısı",
+    phone: "+90 533 200 30 40",
+    email: "emre@kuaforalikarayel.com",
+    color: "#2563eb",
+    startTime: "09:30",
+    endTime: "19:30",
+    active: true,
+  },
+  {
+    id: "st-can-demir",
+    name: "Can Demir",
+    title: "Sakal & Cilt Bakım Uzmanı",
+    phone: "+90 535 300 40 50",
+    email: "can@kuaforalikarayel.com",
+    color: "#059669",
+    startTime: "10:00",
+    endTime: "20:00",
+    active: true,
+  },
+  {
+    id: "st-burak-sahin",
+    name: "Burak Şahin",
+    title: "Renklendirme & Keratin Uzmanı",
+    phone: "+90 536 400 50 60",
+    email: "burak@kuaforalikarayel.com",
+    color: "#d97706",
+    startTime: "09:00",
+    endTime: "18:30",
+    active: true,
+  },
+];
 
 export default function RandevuAlPage() {
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
 
   // Data
-  const [services, setServices] = useState<Service[]>([]);
-  const [staffList, setStaffList] = useState<Staff[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState<Service[]>(DEFAULT_SERVICES);
+  const [staffList, setStaffList] = useState<Staff[]>(DEFAULT_STAFF);
+  const [loading, setLoading] = useState(false);
 
   // Selection states
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -53,21 +185,27 @@ export default function RandevuAlPage() {
   // Fetch initial services and staff
   useEffect(() => {
     const init = async () => {
-      setLoading(true);
       try {
         const [servicesRes, staffRes] = await Promise.all([
           fetch("/api/services?activeOnly=true"),
           fetch("/api/staff?activeOnly=true"),
         ]);
 
-        if (servicesRes.ok && staffRes.ok) {
-          setServices(await servicesRes.json());
-          setStaffList(await staffRes.json());
+        if (servicesRes.ok) {
+          const servData = await servicesRes.json();
+          if (Array.isArray(servData) && servData.length > 0) {
+            setServices(servData);
+          }
+        }
+
+        if (staffRes.ok) {
+          const staffData = await staffRes.json();
+          if (Array.isArray(staffData) && staffData.length > 0) {
+            setStaffList(staffData);
+          }
         }
       } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+        console.error("RandevuAl verisi alınamadı, varsayılanlar devrede:", err);
       }
     };
     init();
@@ -88,8 +226,25 @@ export default function RandevuAlPage() {
         const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
-          setAvailableSlots(data.slots || []);
+          if (Array.isArray(data.slots) && data.slots.length > 0) {
+            setAvailableSlots(data.slots);
+            return;
+          }
         }
+        
+        // Fallback default slots if API slots is empty
+        const defaultHours = [
+          "09:30", "10:00", "10:30", "11:00", "11:30", "12:00",
+          "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
+          "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30"
+        ];
+        setAvailableSlots(
+          defaultHours.map((h) => ({
+            time: h,
+            available: true,
+            availableStaffIds: staffList.map((s) => s.id),
+          }))
+        );
       } catch (err) {
         console.error(err);
       } finally {
@@ -98,7 +253,7 @@ export default function RandevuAlPage() {
     };
 
     fetchSlots();
-  }, [selectedService, selectedStaff, selectedDateStr]);
+  }, [selectedService, selectedStaff, selectedDateStr, staffList]);
 
   const categories = ["ALL", ...Array.from(new Set(services.map((s) => s.category)))];
 
@@ -234,7 +389,7 @@ export default function RandevuAlPage() {
                       Hangi Hizmeti Almak İstersiniz?
                     </h2>
                     <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-                      Özel bakım, kesim veya renklendirme seçeneklerimizden dilediğinizi seçin.
+                      Özel saç kesimi, sakal tasarımı veya kombi VIP bakım paketlerimizden dilediğinizi seçin.
                     </p>
                   </div>
 
@@ -244,10 +399,10 @@ export default function RandevuAlPage() {
                       <button
                         key={cat}
                         onClick={() => setSelectedCategory(cat)}
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                           selectedCategory === cat
                             ? "bg-red-600 text-white shadow-md shadow-red-600/30"
-                            : "bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800"
+                            : "bg-[#0c0d14] text-zinc-400 hover:text-white border border-zinc-800"
                         }`}
                       >
                         {cat === "ALL" ? "Tümü" : cat}
@@ -259,44 +414,52 @@ export default function RandevuAlPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     {filteredServices.map((service) => {
                       const isSelected = selectedService?.id === service.id;
+                      const isPopular = service.category === "Kombin Paket" || service.name.includes("Saç + Sakal");
+
                       return (
                         <div
                           key={service.id}
                           onClick={() => setSelectedService(service)}
-                          className={`p-4 sm:p-5 rounded-2xl border cursor-pointer transition-all duration-200 flex flex-col justify-between ${
+                          className={`p-4 sm:p-5 rounded-2xl border cursor-pointer transition-all duration-200 flex flex-col justify-between relative ${
                             isSelected
-                              ? "bg-red-950/30 border-red-600 shadow-lg shadow-red-600/20"
+                              ? "bg-red-950/30 border-red-600 shadow-xl shadow-red-600/25 scale-[1.01]"
                               : "bg-[#0c0d14] border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/60"
                           }`}
                         >
+                          {isPopular && (
+                            <span className="absolute -top-2.5 right-4 bg-gradient-to-r from-red-600 to-amber-600 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1">
+                              <Star className="w-3 h-3 fill-current" /> Popüler
+                            </span>
+                          )}
+
                           <div>
                             <div className="flex items-start justify-between gap-2">
-                              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-300">
+                              <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-300">
                                 {service.category}
                               </span>
-                              <span className="text-base font-black text-red-400">
+                              <span className="text-base sm:text-lg font-black text-red-400">
                                 {formatPrice(service.price)}
                               </span>
                             </div>
 
-                            <h3 className="font-bold text-white text-sm sm:text-base mt-2">
+                            <h3 className="font-bold text-white text-sm sm:text-base mt-2.5">
                               {service.name}
                             </h3>
                             {service.description && (
-                              <p className="text-xs text-zinc-400 mt-1 line-clamp-2">
+                              <p className="text-xs text-zinc-400 mt-1.5 line-clamp-2 leading-relaxed">
                                 {service.description}
                               </p>
                             )}
                           </div>
 
-                          <div className="flex items-center justify-between mt-4 pt-3 border-t border-zinc-800 text-xs text-zinc-400">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5 text-zinc-500" />
+                          <div className="flex items-center justify-between mt-4 pt-3 border-t border-zinc-800/80 text-xs text-zinc-400">
+                            <span className="flex items-center gap-1 font-medium">
+                              <Clock className="w-3.5 h-3.5 text-red-500" />
                               {service.durationMinutes} dakika
                             </span>
 
                             <div
-                              className={`w-5 h-5 rounded-full flex items-center justify-center border ${
+                              className={`w-5 h-5 rounded-full flex items-center justify-center border transition-colors ${
                                 isSelected
                                   ? "bg-red-600 border-red-600 text-white"
                                   : "border-zinc-700"

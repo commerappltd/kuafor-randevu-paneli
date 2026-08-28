@@ -4,8 +4,8 @@ export interface Customer {
   phone: string;
   email?: string | null;
   notes?: string | null;
-  createdAt: string | Date;
-  updatedAt: string | Date;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
   appointments?: Appointment[];
   _count?: {
     appointments: number;
@@ -23,8 +23,8 @@ export interface Staff {
   startTime: string;
   endTime: string;
   active: boolean;
-  createdAt: string | Date;
-  updatedAt: string | Date;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
   appointments?: Appointment[];
 }
 
@@ -36,8 +36,8 @@ export interface Service {
   price: number;
   description?: string | null;
   active: boolean;
-  createdAt: string | Date;
-  updatedAt: string | Date;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 export type AppointmentStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
@@ -45,11 +45,8 @@ export type AppointmentStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELL
 export interface Appointment {
   id: string;
   customerId: string;
-  customer: Customer;
   staffId: string;
-  staff: Staff;
   serviceId: string;
-  service: Service;
   appointmentDate: string | Date;
   dateStr: string;
   startTime: string;
@@ -57,25 +54,18 @@ export interface Appointment {
   status: AppointmentStatus;
   totalPrice: number;
   notes?: string | null;
-  createdAt: string | Date;
-  updatedAt: string | Date;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+  customer: Customer;
+  staff: Staff;
+  service: Service;
 }
 
 export interface DashboardStats {
   todayAppointmentsCount: number;
-  pendingApprovalsCount: number;
   todayRevenue: number;
+  todayPendingCount: number;
+  totalCustomersCount: number;
   activeStaffCount: number;
-  weeklyRevenueChart: {
-    day: string;
-    fullDate: string;
-    revenue: number;
-    appointments: number;
-  }[];
-  popularServices: {
-    name: string;
-    count: number;
-    revenue: number;
-  }[];
-  todayAppointments: Appointment[];
+  monthlyRevenue: number;
 }
