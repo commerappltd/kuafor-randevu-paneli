@@ -120,30 +120,53 @@ export default function MusterilerPage() {
 
     try {
       const payload = { name, phone, email, notes, status };
-      const url = editingCustomer ? `/api/customers/${editingCustomer.id}` : "/api/customers";
-      const method = editingCustomer ? "PATCH" : "POST";
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      if (editingCustomer) {
+        setCustomers((prev) =>
+          prev.map((c) => (c.id === editingCustomer.id ? { ...c, ...payload } : c))
+        );
+        setIsModalOpen(false);
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Müşteri kaydedilemedi.");
+        await fetch(`/api/customers/${editingCustomer.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        const tempId = `cust-${Date.now()}`;
+        const newCustomerItem: Customer = {
+          id: tempId,
+          name,
+          phone,
+          email,
+          notes,
+          status,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        setCustomers((prev) => [newCustomerItem, ...prev]);
+        setIsModalOpen(false);
 
-      setIsModalOpen(false);
+        await fetch("/api/customers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
+
       fetchCustomers();
     } catch (err: any) {
-      setErrorMsg(err.message);
+      console.warn("Müşteri kaydetme uyarısı:", err);
+      setIsModalOpen(false);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Bu müşteriyi ve ilişkili geçmişini silmek istediğinize emin misiniz?")) return;
+    setCustomers((prev) => prev.filter((c) => c.id !== id));
     try {
-      const res = await fetch(`/api/customers/${id}`, { method: "DELETE" });
-      if (res.ok) fetchCustomers();
+      await fetch(`/api/customers/${id}`, { method: "DELETE" });
+      fetchCustomers();
     } catch (err) {
       console.error(err);
     }

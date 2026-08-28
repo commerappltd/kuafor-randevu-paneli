@@ -96,42 +96,62 @@ export default function HizmetlerPage() {
       const payload = {
         name,
         category,
-        durationMinutes,
-        price,
+        durationMinutes: Number(durationMinutes),
+        price: Number(price),
         description,
         active,
       };
 
-      const url = editingService ? `/api/services/${editingService.id}` : "/api/services";
-      const method = editingService ? "PATCH" : "POST";
+      if (editingService) {
+        setServices((prev) =>
+          prev.map((s) => (s.id === editingService.id ? { ...s, ...payload } : s))
+        );
+        setIsModalOpen(false);
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+        await fetch(`/api/services/${editingService.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        const tempId = `srv-${Date.now()}`;
+        const newServiceItem = {
+          id: tempId,
+          ...payload,
+          _count: { appointments: 0 },
+        };
+        setServices((prev) => [...prev, newServiceItem]);
+        setIsModalOpen(false);
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Hizmet kaydedilemedi.");
+        await fetch("/api/services", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
 
-      setIsModalOpen(false);
       fetchServices();
     } catch (err: any) {
-      setErrorMsg(err.message);
+      console.warn("Hizmet kaydetme uyarısı:", err);
+      setIsModalOpen(false);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Bu hizmeti silmek istediğinize emin misiniz?")) return;
+    setServices((prev) => prev.filter((s) => s.id !== id));
     try {
-      const res = await fetch(`/api/services/${id}`, { method: "DELETE" });
-      if (res.ok) fetchServices();
+      await fetch(`/api/services/${id}`, { method: "DELETE" });
+      fetchServices();
     } catch (err) {
       console.error(err);
     }
   };
 
   const handleToggleActive = async (service: Service) => {
+    setServices((prev) =>
+      prev.map((s) => (s.id === service.id ? { ...s, active: !s.active } : s))
+    );
     try {
       await fetch(`/api/services/${service.id}`, {
         method: "PATCH",

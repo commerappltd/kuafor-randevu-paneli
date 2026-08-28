@@ -106,39 +106,55 @@ export default function PersonelPage() {
       };
 
       if (editingStaff) {
-        const res = await fetch(`/api/staff/${editingStaff.id}`, {
+        setStaffList((prev) =>
+          prev.map((s) => (s.id === editingStaff.id ? { ...s, ...payload } : s))
+        );
+        setIsModalOpen(false);
+
+        await fetch(`/api/staff/${editingStaff.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-        if (!res.ok) throw new Error("Personel güncellenemedi.");
       } else {
-        const res = await fetch("/api/staff", {
+        const tempId = `st-${Date.now()}`;
+        const newStaffItem = {
+          id: tempId,
+          ...payload,
+          _count: { appointments: 0 },
+        };
+        setStaffList((prev) => [...prev, newStaffItem]);
+        setIsModalOpen(false);
+
+        await fetch("/api/staff", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-        if (!res.ok) throw new Error("Personel eklenemedi.");
       }
 
-      setIsModalOpen(false);
       fetchStaff();
     } catch (err: any) {
-      setErrorMsg(err.message);
+      console.warn("Personel kaydetme uyarısı:", err);
+      setIsModalOpen(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Bu personeli silmek istediğinizden emin misiniz?")) return;
+    if (!confirm("Bu personeli silmek istediğinize emin misiniz?")) return;
+    setStaffList((prev) => prev.filter((s) => s.id !== id));
     try {
-      const res = await fetch(`/api/staff/${id}`, { method: "DELETE" });
-      if (res.ok) fetchStaff();
+      await fetch(`/api/staff/${id}`, { method: "DELETE" });
+      fetchStaff();
     } catch (err) {
       console.error(err);
     }
   };
 
   const handleToggleActive = async (staff: Staff) => {
+    setStaffList((prev) =>
+      prev.map((s) => (s.id === staff.id ? { ...s, active: !s.active } : s))
+    );
     try {
       await fetch(`/api/staff/${staff.id}`, {
         method: "PATCH",
