@@ -12,8 +12,13 @@ import {
   subDays,
   startOfWeek,
   endOfWeek,
+  startOfMonth,
+  endOfMonth,
   eachDayOfInterval,
   isSameDay,
+  isSameMonth,
+  addMonths,
+  subMonths,
 } from "date-fns";
 import { tr } from "date-fns/locale";
 import {
@@ -25,6 +30,8 @@ import {
   Scissors,
   Plus,
   Filter,
+  Sparkles,
+  Phone,
 } from "lucide-react";
 
 const HOURS = [
@@ -48,7 +55,7 @@ function timeToMinutes(timeStr: string): number {
 
 export default function TakvimPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [viewMode, setViewMode] = useState<"staff_day" | "weekly">("staff_day");
+  const [viewMode, setViewMode] = useState<"staff_day" | "weekly" | "monthly">("staff_day");
   const [selectedStaffId, setSelectedStaffId] = useState<string>("ALL");
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [staffList, setStaffList] = useState<Staff[]>([]);
@@ -79,10 +86,14 @@ export default function TakvimPage() {
       let url = "/api/appointments?";
       if (viewMode === "staff_day") {
         url += `date=${format(selectedDate, "yyyy-MM-dd")}`;
-      } else {
+      } else if (viewMode === "weekly") {
         const start = format(startOfWeek(selectedDate, { weekStartsOn: 1 }), "yyyy-MM-dd");
         const end = format(endOfWeek(selectedDate, { weekStartsOn: 1 }), "yyyy-MM-dd");
         url += `startDate=${start}&endDate=${end}`;
+      } else {
+        const monthStart = startOfWeek(startOfMonth(selectedDate), { weekStartsOn: 1 });
+        const monthEnd = endOfWeek(endOfMonth(selectedDate), { weekStartsOn: 1 });
+        url += `startDate=${format(monthStart, "yyyy-MM-dd")}&endDate=${format(monthEnd, "yyyy-MM-dd")}`;
       }
 
       if (selectedStaffId !== "ALL") {
@@ -110,11 +121,23 @@ export default function TakvimPage() {
   }, [selectedDate, viewMode, selectedStaffId]);
 
   const handlePrev = () => {
-    setSelectedDate((prev) => (viewMode === "staff_day" ? subDays(prev, 1) : subDays(prev, 7)));
+    if (viewMode === "staff_day") {
+      setSelectedDate((prev) => subDays(prev, 1));
+    } else if (viewMode === "weekly") {
+      setSelectedDate((prev) => subDays(prev, 7));
+    } else {
+      setSelectedDate((prev) => subMonths(prev, 1));
+    }
   };
 
   const handleNext = () => {
-    setSelectedDate((prev) => (viewMode === "staff_day" ? addDays(prev, 1) : addDays(prev, 7)));
+    if (viewMode === "staff_day") {
+      setSelectedDate((prev) => addDays(prev, 1));
+    } else if (viewMode === "weekly") {
+      setSelectedDate((prev) => addDays(prev, 7));
+    } else {
+      setSelectedDate((prev) => addMonths(prev, 1));
+    }
   };
 
   const handleToday = () => {
@@ -139,6 +162,11 @@ export default function TakvimPage() {
   const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
+  // Monthly Days Interval
+  const monthStart = startOfWeek(startOfMonth(selectedDate), { weekStartsOn: 1 });
+  const monthEnd = endOfWeek(endOfMonth(selectedDate), { weekStartsOn: 1 });
+  const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
   const activeStaffToDisplay = selectedStaffId === "ALL" 
     ? staffList 
     : staffList.filter((s) => s.id === selectedStaffId);
@@ -147,7 +175,7 @@ export default function TakvimPage() {
     <AdminLayout>
       <Header
         title="İnteraktif Randevu Takvimi"
-        description="Personel bazlı saatlik timeline ve haftalık salon doluluk planı"
+        description="Personel bazlı saatlik timeline, haftalık plan ve aylık salon doluluk çizelgesi"
         onNewAppointment={() => {
           setEditingAppointment(null);
           setModalInitialDate(format(selectedDate, "yyyy-MM-dd"));
@@ -190,7 +218,9 @@ export default function TakvimPage() {
               <span>
                 {viewMode === "staff_day"
                   ? formatDateTR(selectedDate)
-                  : `${format(weekStart, "d MMM", { locale: tr })} - ${format(weekEnd, "d MMM yyyy", { locale: tr })}`}
+                  : viewMode === "weekly"
+                  ? `${format(weekStart, "d MMM", { locale: tr })} - ${format(weekEnd, "d MMM yyyy", { locale: tr })}`
+                  : format(selectedDate, "MMMM yyyy", { locale: tr }).toUpperCase()}
               </span>
             </div>
           </div>
@@ -214,7 +244,7 @@ export default function TakvimPage() {
               </select>
             </div>
 
-            {/* Görünüm Modu */}
+            {/* Görünüm Modu 3'lü Buton */}
             <div className="flex items-center bg-[#0c0d14] p-1 rounded-xl border border-zinc-800 text-xs font-medium">
               <button
                 onClick={() => setViewMode("staff_day")}
@@ -235,6 +265,16 @@ export default function TakvimPage() {
                 }`}
               >
                 Haftalık Görünüm
+              </button>
+              <button
+                onClick={() => setViewMode("monthly")}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  viewMode === "monthly"
+                    ? "bg-red-600 text-white font-bold shadow-xs"
+                    : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                Aylık Görünüm
               </button>
             </div>
           </div>
@@ -301,55 +341,39 @@ export default function TakvimPage() {
                                 hour
                               )
                             }
-                            className={`p-1.5 border-r border-zinc-800/60 last:border-r-0 relative group transition-colors ${
-                              matchingApp
-                                ? "bg-zinc-900/30"
-                                : "hover:bg-red-950/20 cursor-pointer"
+                            className={`p-1.5 border-r border-zinc-800 last:border-r-0 relative transition-colors ${
+                              !matchingApp ? "hover:bg-zinc-800/40 cursor-pointer" : ""
                             }`}
                           >
-                            {!matchingApp && (
-                              <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute inset-0 flex items-center justify-center text-red-400 text-xs font-bold gap-1">
-                                <Plus className="w-3.5 h-3.5" />
-                                <span>Randevu Ekle</span>
-                              </div>
-                            )}
-
                             {matchingApp && isStartHour && (
                               <div
                                 onClick={(e) => handleEditClick(e, matchingApp)}
-                                className="h-full w-full rounded-xl p-2.5 shadow-md border border-zinc-700/80 text-xs cursor-pointer transition-all hover:scale-[1.01] flex flex-col justify-between bg-[#0c0d14]"
+                                className={`absolute inset-x-1 top-1 z-10 p-2.5 rounded-xl border transition-all cursor-pointer shadow-md hover:scale-[1.02] ${
+                                  APPOINTMENT_STATUS[matchingApp.status]?.bg ||
+                                  "bg-zinc-800 border-zinc-700 text-white"
+                                }`}
                                 style={{
-                                  borderLeftColor: staff.color || "#dc2626",
-                                  borderLeftWidth: "4px",
+                                  height: `calc(${
+                                    ((timeToMinutes(matchingApp.endTime) -
+                                      timeToMinutes(matchingApp.startTime)) /
+                                      30) *
+                                    64
+                                  }px - 8px)`,
                                 }}
                               >
-                                <div>
-                                  <div className="flex items-center justify-between gap-1">
-                                    <span className="font-bold text-white truncate">
-                                      {matchingApp.customer.name}
-                                    </span>
-                                    <span
-                                      className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${
-                                        APPOINTMENT_STATUS[matchingApp.status]?.bg || "bg-zinc-800 text-zinc-300"
-                                      }`}
-                                    >
-                                      {APPOINTMENT_STATUS[matchingApp.status]?.label || matchingApp.status}
-                                    </span>
-                                  </div>
-
-                                  <div className="flex items-center gap-1 text-[11px] text-zinc-400 mt-1 truncate">
-                                    <Scissors className="w-3 h-3 text-red-500 shrink-0" />
-                                    <span>{matchingApp.service.name}</span>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center justify-between text-[10px] text-zinc-400 mt-2 pt-1.5 border-t border-zinc-800">
-                                  <span className="font-semibold text-zinc-300">
+                                <div className="flex items-center justify-between gap-1">
+                                  <span className="font-extrabold text-xs truncate text-white">
+                                    {matchingApp.customer.name}
+                                  </span>
+                                  <span className="text-[10px] font-bold text-zinc-300">
                                     {matchingApp.startTime} - {matchingApp.endTime}
                                   </span>
-                                  <span className="font-bold text-red-400">
-                                    {formatPrice(matchingApp.totalPrice)}
-                                  </span>
+                                </div>
+                                <div className="text-[11px] font-medium text-zinc-300 truncate mt-0.5">
+                                  {matchingApp.service.name}
+                                </div>
+                                <div className="text-[10px] font-bold text-emerald-400 mt-1">
+                                  {formatPrice(matchingApp.totalPrice)}
                                 </div>
                               </div>
                             )}
@@ -364,82 +388,191 @@ export default function TakvimPage() {
           </div>
         )}
 
-        {/* 2. GÖRÜNÜM: Haftalık Takvim */}
+        {/* 2. GÖRÜNÜM: Haftalık Görünüm */}
         {viewMode === "weekly" && (
-          <div className="bg-[#12131a] rounded-2xl border border-zinc-800/90 shadow-lg overflow-hidden flex-1">
-            <div className="grid grid-cols-7 border-b border-zinc-800 bg-[#0c0d14] text-center">
-              {weekDays.map((day) => {
-                const isToday = isSameDay(day, new Date());
-                return (
-                  <div
-                    key={day.toString()}
-                    className={`p-3 border-r border-zinc-800 last:border-r-0 ${
-                      isToday ? "bg-red-950/30" : ""
-                    }`}
-                  >
-                    <span className="block text-[11px] font-bold text-zinc-400 uppercase">
-                      {format(day, "EEEE", { locale: tr })}
-                    </span>
-                    <span
-                      className={`inline-block mt-0.5 text-sm font-black w-7 h-7 leading-7 rounded-full ${
-                        isToday ? "bg-red-600 text-white shadow-md shadow-red-600/30" : "text-white"
-                      }`}
-                    >
-                      {format(day, "d")}
-                    </span>
+          <div className="bg-[#12131a] rounded-2xl border border-zinc-800/90 shadow-lg overflow-hidden flex-1 flex flex-col">
+            <div className="overflow-x-auto">
+              <div className="min-w-[800px]">
+                {/* Gün Başlıkları */}
+                <div className="grid grid-cols-[80px_repeat(7,1fr)] border-b border-zinc-800 bg-[#0c0d14]">
+                  <div className="p-3.5 text-center text-xs font-bold text-zinc-400 border-r border-zinc-800 flex items-center justify-center">
+                    Saat
                   </div>
-                );
-              })}
+                  {weekDays.map((day) => {
+                    const isToday = isSameDay(day, new Date());
+                    return (
+                      <div
+                        key={day.toISOString()}
+                        className={`p-3 text-center border-r border-zinc-800 last:border-r-0 ${
+                          isToday ? "bg-red-950/20" : ""
+                        }`}
+                      >
+                        <span className="text-[10px] font-bold uppercase text-zinc-400 block">
+                          {format(day, "EEEE", { locale: tr })}
+                        </span>
+                        <span
+                          className={`text-sm font-extrabold block mt-0.5 ${
+                            isToday ? "text-red-500" : "text-white"
+                          }`}
+                        >
+                          {format(day, "d MMMM", { locale: tr })}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Saat Satırları */}
+                <div className="divide-y divide-zinc-800/80">
+                  {HOURS.map((hour) => (
+                    <div
+                      key={hour}
+                      className="grid grid-cols-[80px_repeat(7,1fr)] min-h-[56px]"
+                    >
+                      <div className="p-2 text-center text-xs font-semibold text-zinc-400 border-r border-zinc-800 bg-[#0c0d14]/60 flex items-center justify-center">
+                        {hour}
+                      </div>
+
+                      {weekDays.map((day) => {
+                        const dateStr = format(day, "yyyy-MM-dd");
+                        const matchingApps = appointments.filter(
+                          (a) => a.dateStr === dateStr && a.startTime === hour
+                        );
+
+                        return (
+                          <div
+                            key={day.toISOString()}
+                            onClick={() =>
+                              matchingApps.length === 0 &&
+                              handleCellClick(
+                                dateStr,
+                                staffList[0]?.id || "",
+                                hour
+                              )
+                            }
+                            className={`p-1 border-r border-zinc-800 last:border-r-0 relative transition-colors ${
+                              matchingApps.length === 0
+                                ? "hover:bg-zinc-800/30 cursor-pointer"
+                                : ""
+                            }`}
+                          >
+                            {matchingApps.map((app) => (
+                              <div
+                                key={app.id}
+                                onClick={(e) => handleEditClick(e, app)}
+                                className={`p-1.5 rounded-lg border text-[10px] font-semibold mb-1 cursor-pointer transition-all hover:scale-105 ${
+                                  APPOINTMENT_STATUS[app.status]?.bg ||
+                                  "bg-zinc-800 border-zinc-700 text-white"
+                                }`}
+                              >
+                                <div className="font-bold text-white truncate">
+                                  {app.customer.name}
+                                </div>
+                                <div className="text-zinc-300 truncate text-[9px]">
+                                  {app.service.name}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 3. GÖRÜNÜM: AYLIK GÖRÜNÜM (YENİ EKLENDİ) */}
+        {viewMode === "monthly" && (
+          <div className="bg-[#12131a] rounded-2xl border border-zinc-800/90 shadow-lg overflow-hidden flex-1 flex flex-col p-4 sm:p-6">
+            {/* Haftanın Günleri Başlıkları */}
+            <div className="grid grid-cols-7 border-b border-zinc-800 pb-3 mb-2 text-center text-xs font-black uppercase tracking-wider text-zinc-400">
+              <span>Pazartesi</span>
+              <span>Salı</span>
+              <span>Çarşamba</span>
+              <span>Perşembe</span>
+              <span>Cuma</span>
+              <span className="text-red-400">Cumartesi</span>
+              <span className="text-red-400">Pazar</span>
             </div>
 
-            <div className="grid grid-cols-7 divide-x divide-zinc-800/80 min-h-[500px]">
-              {weekDays.map((day) => {
-                const dayStr = format(day, "yyyy-MM-dd");
-                const dayApps = appointments.filter((a) => a.dateStr === dayStr);
+            {/* Aylık Gün Kutuları Grid */}
+            <div className="grid grid-cols-7 gap-2 flex-1 auto-rows-fr">
+              {monthDays.map((day) => {
+                const dateStr = format(day, "yyyy-MM-dd");
+                const isCurrentMonth = isSameMonth(day, selectedDate);
+                const isToday = isSameDay(day, new Date());
+                const dayApps = appointments.filter((a) => a.dateStr === dateStr);
+                const dayRevenue = dayApps
+                  .filter((a) => a.status === "COMPLETED" || a.status === "CONFIRMED")
+                  .reduce((sum, a) => sum + a.totalPrice, 0);
 
                 return (
                   <div
-                    key={dayStr}
-                    className="p-2 space-y-2 bg-[#12131a] hover:bg-zinc-900/40 transition-colors"
+                    key={day.toISOString()}
+                    onClick={() => {
+                      setSelectedDate(day);
+                      setViewMode("staff_day");
+                    }}
+                    className={`min-h-[105px] sm:min-h-[125px] p-2 sm:p-2.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+                      isToday
+                        ? "bg-red-950/20 border-red-600/80 shadow-md shadow-red-950/40"
+                        : isCurrentMonth
+                        ? "bg-[#0c0d14] border-zinc-800/90 hover:border-zinc-700 hover:bg-zinc-900/60"
+                        : "bg-zinc-950/40 border-zinc-900/60 opacity-30"
+                    }`}
                   >
-                    {dayApps.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center text-center p-3">
-                        <button
-                          onClick={() => handleCellClick(dayStr, staffList[0]?.id || "", "10:00")}
-                          className="text-[11px] font-medium text-zinc-500 hover:text-red-400 p-2 rounded-lg border border-dashed border-zinc-800 hover:border-red-600/50 transition-all w-full"
-                        >
-                          + Randevu Ekle
-                        </button>
-                      </div>
-                    ) : (
-                      dayApps.map((app) => (
+                    {/* Üst Satır: Gün Numarası & Randevu Sayısı */}
+                    <div className="flex items-center justify-between">
+                      <span
+                        className={`text-xs font-black w-6 h-6 rounded-full flex items-center justify-center ${
+                          isToday
+                            ? "bg-red-600 text-white shadow-sm"
+                            : isCurrentMonth
+                            ? "text-white"
+                            : "text-zinc-500"
+                        }`}
+                      >
+                        {format(day, "d")}
+                      </span>
+
+                      {dayApps.length > 0 && (
+                        <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-red-600/20 text-red-400 border border-red-600/30">
+                          {dayApps.length} Randevu
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Randevu Hapları (Max 2 tane gösterir, fazlaysa +N der) */}
+                    <div className="space-y-1 my-1 overflow-hidden">
+                      {dayApps.slice(0, 2).map((app) => (
                         <div
                           key={app.id}
                           onClick={(e) => handleEditClick(e, app)}
-                          className="bg-[#0c0d14] p-2.5 rounded-xl border border-zinc-800 hover:border-zinc-700 shadow-sm transition-all cursor-pointer text-xs"
-                          style={{
-                            borderLeftColor: app.staff.color || "#dc2626",
-                            borderLeftWidth: "4px",
-                          }}
+                          className="px-1.5 py-0.5 rounded bg-zinc-900/90 border border-zinc-800 text-[9px] font-semibold text-zinc-300 truncate flex items-center gap-1 hover:border-red-500"
                         >
-                          <div className="flex items-center justify-between font-bold text-white">
-                            <span className="truncate">{app.customer.name}</span>
-                            <span className="text-[10px] text-zinc-400 font-medium">
-                              {app.startTime}
-                            </span>
-                          </div>
-                          <div className="text-[11px] text-zinc-400 mt-1 truncate">
-                            {app.service.name}
-                          </div>
-                          <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-zinc-800 text-[10px]">
-                            <span className="text-zinc-500">{app.staff.name.split(" ")[0]}</span>
-                            <span className="font-bold text-red-400">
-                              {formatPrice(app.totalPrice)}
-                            </span>
-                          </div>
+                          <span
+                            className="w-1.5 h-1.5 rounded-full shrink-0"
+                            style={{ backgroundColor: app.staff.color || "#dc2626" }}
+                          />
+                          <span className="font-bold text-white">{app.startTime}</span>
+                          <span className="truncate">{app.customer.name}</span>
                         </div>
-                      ))
-                    )}
+                      ))}
+
+                      {dayApps.length > 2 && (
+                        <div className="text-[9px] font-bold text-zinc-500 pl-1">
+                          +{dayApps.length - 2} randevu daha
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Alt Satır: Ciro */}
+                    <div className="text-[10px] font-bold text-emerald-400/90 text-right">
+                      {dayRevenue > 0 ? `${formatPrice(dayRevenue)}` : ""}
+                    </div>
                   </div>
                 );
               })}
@@ -448,13 +581,10 @@ export default function TakvimPage() {
         )}
       </main>
 
-      {/* Appointment Modal */}
+      {/* Appointment Create/Edit Modal */}
       <AppointmentModal
         isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingAppointment(null);
-        }}
+        onClose={() => setIsModalOpen(false)}
         onSuccess={fetchAppointments}
         initialDate={modalInitialDate}
         initialStaffId={modalInitialStaffId}

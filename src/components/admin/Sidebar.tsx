@@ -14,6 +14,7 @@ import {
   Sparkles,
   X,
   Flame,
+  UserCog,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,11 @@ const navigationItems = [
     name: "Dashboard",
     href: "/",
     icon: LayoutDashboard,
+  },
+  {
+    name: "Kullanıcı Yönetimi",
+    href: "/kullanici-yonetimi",
+    icon: UserCog,
   },
   {
     name: "Randevu Takvimi",
