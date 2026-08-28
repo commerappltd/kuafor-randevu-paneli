@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id           String        @id @default(cuid())
+  name         String
+  phone        String        @unique
+  email        String?
+  notes        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  appointments Appointment[]
+}
+
+model Staff {
+  id           String        @id @default(cuid())
+  name         String
+  title        String        // örn. "Master Berber", "Saç Tasarım Uzmanı"
+  phone        String?
+  email        String?
+  avatarUrl    String?
+  color        String        @default("#3b82f6") // Takvimde ayırt edici renk (#6366f1, #10b981, #f59e0b, #ec4899)
+  startTime    String        @default("09:00")
+  endTime      String        @default("19:00")
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  appointments Appointment[]
+}
+
+model Service {
+  id              String        @id @default(cuid())
+  name            String
+  category        String        // "Saç Kesimi", "Sakal & Bakım", "Renklendirme", "Özel Bakım & Spa"
+  durationMinutes Int           @default(30)
+  price           Float
+  description     String?
+  active          Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  appointments    Appointment[]
+}
+
+model Appointment {
+  id          String   @id @default(cuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  staffId     String
+  staff       Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  serviceId   String
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  
+  appointmentDate DateTime // Tarih
+  dateStr         String   // "YYYY-MM-DD" kolay filtreleme ve takvim eşleşmesi için
+  startTime       String   // "10:30"
+  endTime         String   // "11:15"
+  
+  status      String   @default("PENDING") // PENDING (Beklemede), CONFIRMED (Onaylandı), COMPLETED (Tamamlandı), CANCELLED (İptal)
+  totalPrice  Float
+  notes       String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([dateStr])
+  @@index([staffId])
+  @@index([status])
+}

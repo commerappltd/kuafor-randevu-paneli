@@ -1,69 +1,167 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect, useCallback } from "react";
+import AdminLayout from "@/components/admin/AdminLayout";
+import Header from "@/components/admin/Header";
+import StatsCards from "@/components/admin/StatsCards";
+import RevenueChart from "@/components/admin/RevenueChart";
+import TodayAppointmentsList from "@/components/admin/TodayAppointmentsList";
+import AppointmentModal from "@/components/admin/AppointmentModal";
+import { formatPrice } from "@/lib/utils";
+import { DashboardStats, Appointment } from "@/types";
+import { Scissors, TrendingUp, Sparkles, UserPlus, Calendar } from "lucide-react";
+import Link from "next/link";
+
+export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      const res = await fetch("/api/stats");
+      if (!res.ok) throw new Error("İstatistikler alınamadı");
+      const data: DashboardStats = await res.json();
+      setStats(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/appointments/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        await fetchStats();
+      }
+    } catch (err) {
+      console.error("Status update error:", err);
+    }
+  };
+
+  const handleEditAppointment = (appointment: Appointment) => {
+    setEditingAppointment(appointment);
+    setIsModalOpen(true);
+  };
+
+  const handleCreateNew = () => {
+    setEditingAppointment(null);
+    setIsModalOpen(true);
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+    <AdminLayout>
+      <Header
+        title="Genel Bakış & Kontrol Paneli"
+        description="Salondaki anlık randevu akışı, finansal durum ve uzman performansları"
+        onNewAppointment={handleCreateNew}
+        onRefresh={fetchStats}
+        isRefreshing={refreshing}
+      />
+
+      <main className="p-8 space-y-8 flex-1">
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-600"></div>
+          </div>
+        ) : stats ? (
+          <>
+            {/* Top KPI Cards */}
+            <StatsCards
+              todayCount={stats.todayAppointmentsCount}
+              pendingCount={stats.pendingApprovalsCount}
+              todayRevenue={stats.todayRevenue}
+              activeStaffCount={stats.activeStaffCount}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+            {/* Middle Grid: Revenue Chart & Popular Services */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <RevenueChart data={stats.weeklyRevenueChart} />
+              </div>
+
+              {/* Popular Services Card */}
+              <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
+                        <Scissors className="w-4 h-4 text-amber-600" />
+                        Popüler Hizmetler
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-0.5">En çok tercih edilen işlemler</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3.5">
+                    {stats.popularServices.map((service, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-700 font-bold text-xs flex items-center justify-center">
+                            {idx + 1}
+                          </span>
+                          <div>
+                            <h4 className="font-semibold text-slate-900 text-xs">{service.name}</h4>
+                            <p className="text-[11px] text-slate-500">{service.count} kez uygulandı</p>
+                          </div>
+                        </div>
+                        <span className="font-bold text-slate-800 text-xs">
+                          {formatPrice(service.revenue)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="text-slate-500">Tüm hizmetleri görüntüle</span>
+                  <Link
+                    href="/hizmetler"
+                    className="font-semibold text-amber-600 hover:text-amber-700"
+                  >
+                    Hizmet Kataloğu →
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom: Today's Appointments List */}
+            <TodayAppointmentsList
+              appointments={stats.todayAppointments}
+              onStatusChange={handleStatusChange}
+              onEdit={handleEditAppointment}
+            />
+          </>
+        ) : null}
       </main>
-    </div>
+
+      {/* Appointment Modal */}
+      <AppointmentModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingAppointment(null);
+        }}
+        onSuccess={fetchStats}
+        editAppointment={editingAppointment}
+      />
+    </AdminLayout>
   );
 }
