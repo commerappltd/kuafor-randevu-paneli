@@ -19,6 +19,7 @@ import {
   X,
   Clock,
   Scissors,
+  MessageSquare,
 } from "lucide-react";
 
 export default function MusterilerPage() {
@@ -173,10 +174,20 @@ export default function MusterilerPage() {
                       </div>
                       <div>
                         <h4 className="font-bold text-sm text-slate-900">{c.name}</h4>
-                        <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                          <Phone className="w-3 h-3 text-slate-400" />
-                          <a href={`tel:${c.phone}`} className="hover:text-amber-600">
+                        <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5">
+                          <a href={`tel:${c.phone}`} className="flex items-center gap-1 hover:text-amber-600">
+                            <Phone className="w-3 h-3 text-slate-400" />
                             {c.phone}
+                          </a>
+                          <a
+                            href={`https://wa.me/${c.phone.replace(/\D/g, "").replace(/^0/, "").startsWith("90") ? c.phone.replace(/\D/g, "").replace(/^0/, "") : `90${c.phone.replace(/\D/g, "").replace(/^0/, "")}`}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1 rounded-md bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors flex items-center gap-1 text-[10px] font-bold"
+                            title="WhatsApp'ta Yaz"
+                          >
+                            <MessageSquare className="w-3 h-3" />
+                            <span>WhatsApp</span>
                           </a>
                         </div>
                       </div>

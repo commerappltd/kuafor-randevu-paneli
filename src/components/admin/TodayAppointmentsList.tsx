@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Clock, Scissors, UserCheck, Phone, CheckCircle, XCircle, MoreVertical, Edit2, Check } from "lucide-react";
+import { Clock, Scissors, UserCheck, Phone, CheckCircle, XCircle, MoreVertical, Edit2, Check, MessageSquare } from "lucide-react";
 import { formatPrice, APPOINTMENT_STATUS } from "@/lib/utils";
 import { Appointment } from "@/types";
 
@@ -9,12 +9,14 @@ interface TodayAppointmentsListProps {
   appointments: Appointment[];
   onStatusChange: (id: string, newStatus: string) => Promise<void>;
   onEdit: (appointment: Appointment) => void;
+  onWhatsApp?: (appointment: Appointment) => void;
 }
 
 export default function TodayAppointmentsList({
   appointments,
   onStatusChange,
   onEdit,
+  onWhatsApp,
 }: TodayAppointmentsListProps) {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
@@ -114,6 +116,18 @@ export default function TodayAppointmentsList({
 
                   {/* Action Buttons */}
                   <div className="flex items-center gap-1 pl-2 border-l border-slate-200">
+                    {/* WhatsApp Hatırlat Butonu */}
+                    {onWhatsApp && (
+                      <button
+                        onClick={() => onWhatsApp(app)}
+                        className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors text-xs font-medium flex items-center gap-1"
+                        title="WhatsApp ile Hatırlat"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        <span className="hidden sm:inline">WhatsApp</span>
+                      </button>
+                    )}
+
                     {app.status === "PENDING" && (
                       <button
                         onClick={() => handleAction(app.id, "CONFIRMED")}

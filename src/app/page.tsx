@@ -7,6 +7,7 @@ import StatsCards from "@/components/admin/StatsCards";
 import RevenueChart from "@/components/admin/RevenueChart";
 import TodayAppointmentsList from "@/components/admin/TodayAppointmentsList";
 import AppointmentModal from "@/components/admin/AppointmentModal";
+import WhatsAppModal from "@/components/admin/WhatsAppModal";
 import { formatPrice } from "@/lib/utils";
 import { DashboardStats, Appointment } from "@/types";
 import { Scissors, TrendingUp, Sparkles, UserPlus, Calendar } from "lucide-react";
@@ -18,6 +19,7 @@ export default function DashboardPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+  const [whatsAppAppointment, setWhatsAppAppointment] = useState<Appointment | null>(null);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -147,6 +149,7 @@ export default function DashboardPage() {
               appointments={stats.todayAppointments}
               onStatusChange={handleStatusChange}
               onEdit={handleEditAppointment}
+              onWhatsApp={(app) => setWhatsAppAppointment(app)}
             />
           </>
         ) : null}
@@ -161,6 +164,13 @@ export default function DashboardPage() {
         }}
         onSuccess={fetchStats}
         editAppointment={editingAppointment}
+      />
+
+      {/* WhatsApp Modal */}
+      <WhatsAppModal
+        isOpen={Boolean(whatsAppAppointment)}
+        onClose={() => setWhatsAppAppointment(null)}
+        appointment={whatsAppAppointment}
       />
     </AdminLayout>
   );

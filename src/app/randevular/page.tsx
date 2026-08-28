@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import Header from "@/components/admin/Header";
 import AppointmentModal from "@/components/admin/AppointmentModal";
+import WhatsAppModal from "@/components/admin/WhatsAppModal";
 import { format } from "date-fns";
 import { formatDateTR, formatPrice, APPOINTMENT_STATUS } from "@/lib/utils";
 import { Appointment, Staff } from "@/types";
@@ -20,6 +21,7 @@ import {
   CheckCircle,
   Check,
   XCircle,
+  MessageSquare,
 } from "lucide-react";
 
 export default function RandevularPage() {
@@ -36,6 +38,7 @@ export default function RandevularPage() {
   // Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+  const [whatsAppAppointment, setWhatsAppAppointment] = useState<Appointment | null>(null);
 
   const fetchStaff = async () => {
     try {
@@ -265,6 +268,15 @@ export default function RandevularPage() {
                         {/* İşlemler */}
                         <td className="py-3.5 px-4 text-right whitespace-nowrap">
                           <div className="flex items-center justify-end gap-1.5">
+                            {/* WhatsApp Bildirim Butonu */}
+                            <button
+                              onClick={() => setWhatsAppAppointment(app)}
+                              className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
+                              title="WhatsApp ile Hatırlat"
+                            >
+                              <MessageSquare className="w-4 h-4" />
+                            </button>
+
                             {app.status === "PENDING" && (
                               <button
                                 onClick={() => handleStatusChange(app.id, "CONFIRMED")}
@@ -324,6 +336,13 @@ export default function RandevularPage() {
         }}
         onSuccess={fetchAppointments}
         editAppointment={editingAppointment}
+      />
+
+      {/* WhatsApp Modal */}
+      <WhatsAppModal
+        isOpen={Boolean(whatsAppAppointment)}
+        onClose={() => setWhatsAppAppointment(null)}
+        appointment={whatsAppAppointment}
       />
     </AdminLayout>
   );
