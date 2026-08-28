@@ -165,7 +165,7 @@ export default function RandevuAlPage() {
             </div>
             <div>
               <h1 className="font-bold text-base text-white tracking-tight flex items-center gap-1.5">
-                Makas & Stil Salon <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                Kuaför Ali Karayel <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               </h1>
               <p className="text-xs text-slate-400">Online Randevu Portalı</p>
             </div>
@@ -711,7 +711,7 @@ export default function RandevuAlPage() {
 
       {/* Footer */}
       <footer className="border-t border-slate-800/60 py-6 text-center text-xs text-slate-500">
-        <p>© 2026 Makas & Stil Kuaför & Güzellik Salonu. Tüm hakları saklıdır.</p>
+        <p>© 2026 Kuaför Ali Karayel Salonu. Tüm hakları saklıdır.</p>
       </footer>
     </div>
   );

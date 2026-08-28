@@ -36,7 +36,7 @@ export default function WhatsAppModal({
 📅 *${formatDateTR(appointment.dateStr, "d MMMM yyyy, EEEE")}* günü saat *${appointment.startTime}* için *${appointment.service.name}* randevunuz bulunmaktadır.
 
 💈 *Uzman Kuaförünüz:* ${appointment.staff.name}
-📍 *Salon:* Makas & Stil Salonu
+📍 *Salon:* Kuaför Ali Karayel
 💰 *Tutar:* ${formatPrice(appointment.totalPrice)}
 
 Sizi ağırlamaktan mutluluk duyarız. Randevunuzda herhangi bir değişiklik yapmak isterseniz lütfen bu mesajı yanıtlayınız. ✨`,

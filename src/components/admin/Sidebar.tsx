@@ -66,9 +66,9 @@ export default function Sidebar() {
           </div>
           <div>
             <h1 className="font-bold text-lg text-white tracking-tight flex items-center gap-1.5">
-              Makas & Stil <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              Kuaför Ali Karayel <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             </h1>
-            <p className="text-xs text-slate-400 font-medium">Kuaför Yönetim Paneli</p>
+            <p className="text-xs text-slate-400 font-medium">Randevu & Yönetim Paneli</p>
           </div>
         </div>
       </div>

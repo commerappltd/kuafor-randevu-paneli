@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Makas & Stil | Kuaför & Salon Yönetim Paneli",
-  description: "Modern kuaför randevu, müşteri ve salon yönetim sistemi",
+  title: "Kuaför Ali Karayel | Randevu & Salon Yönetim Paneli",
+  description: "Kuaför Ali Karayel randevu, müşteri ve salon yönetim sistemi",
 };
 
 export default function RootLayout({

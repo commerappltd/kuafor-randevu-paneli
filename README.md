@@ -1,6 +1,6 @@
-# 💈 Makas & Stil | Kuaför Randevu ve Yönetim Sistemi
+# 💈 Kuaför Ali Karayel | Randevu ve Yönetim Sistemi
 
-Modern kuaförler, berberler ve güzellik salonları için geliştirilmiş fullstack randevu, müşteri CRM, personel ve gelir yönetim paneli.
+Kuaför Ali Karayel salonu için geliştirilmiş fullstack randevu, müşteri CRM, personel ve gelir yönetim paneli.
 
 ---
 
