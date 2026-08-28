@@ -61,6 +61,53 @@ export function isTimeOverlapping(
   return sA < eB && eA > sB;
 }
 
+// 13 Haneli (+90 5XX XXX XX XX) Telefon Numarası Formatlayıcı
+export function formatPhoneNumber(val: string): string {
+  if (!val) return "+90 ";
+  // Sadece rakamları al
+  let digits = val.replace(/\D/g, "");
+
+  // Baştaki 90'ı veya 0'ı temizleyip standart 10 haneli gövdeye dönüştür
+  if (digits.startsWith("90")) {
+    digits = digits.slice(2);
+  } else if (digits.startsWith("0")) {
+    digits = digits.slice(1);
+  }
+
+  // Maksimum 10 hane cep telefonu
+  digits = digits.slice(0, 10);
+
+  // Otomatik Maskeleme: +90 5XX XXX XX XX
+  let formatted = "+90";
+  if (digits.length > 0) {
+    formatted += ` ${digits.slice(0, 3)}`;
+  }
+  if (digits.length >= 4) {
+    formatted += ` ${digits.slice(3, 6)}`;
+  }
+  if (digits.length >= 7) {
+    formatted += ` ${digits.slice(6, 8)}`;
+  }
+  if (digits.length >= 9) {
+    formatted += ` ${digits.slice(8, 10)}`;
+  }
+
+  return formatted;
+}
+
+// 13 Haneli Telefon Doğrulama Kontrolü (Tam 10 rakam girilmiş mi?)
+export function isValidPhoneNumber(val: string): boolean {
+  if (!val) return false;
+  let digits = val.replace(/\D/g, "");
+  if (digits.startsWith("90")) {
+    digits = digits.slice(2);
+  } else if (digits.startsWith("0")) {
+    digits = digits.slice(1);
+  }
+  // Türkiye cep telefonu: 5 ile başlamalı ve tam 10 hane olmalıdır
+  return digits.length === 10 && digits.startsWith("5");
+}
+
 // Randevu Durumları & Renkleri
 export const APPOINTMENT_STATUS = {
   PENDING: {

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { X, Calendar, Clock, Scissors, UserCheck, User, Phone, AlertCircle, Check } from "lucide-react";
 import { format } from "date-fns";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, formatPhoneNumber, isValidPhoneNumber } from "@/lib/utils";
 import { Appointment, Service, Staff, Customer } from "@/types";
 
 interface AppointmentModalProps {
@@ -149,6 +149,9 @@ export default function AppointmentModal({
           if (!customerName.trim() || !customerPhone.trim()) {
             throw new Error("Lütfen müşteri adı ve telefon numarasını giriniz.");
           }
+          if (!isValidPhoneNumber(customerPhone)) {
+            throw new Error("Lütfen geçerli ve 13 haneli (+90 5XX XXX XX XX) telefon numarasını eksiksiz giriniz.");
+          }
           payload.customerName = customerName;
           payload.customerPhone = customerPhone;
           payload.customerEmail = customerEmail;
@@ -258,9 +261,9 @@ export default function AppointmentModal({
                   />
                   <input
                     type="tel"
-                    placeholder="Telefon Numarası * (örn. 0532 123 45 67)"
+                    placeholder="Telefon Numarası * (+90 5XX XXX XX XX)"
                     value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    onChange={(e) => setCustomerPhone(formatPhoneNumber(e.target.value))}
                     className="w-full px-3.5 py-2 rounded-xl border border-zinc-800 bg-[#12131a] text-white text-xs font-medium placeholder:text-zinc-600 focus:outline-none focus:border-red-600"
                     required={isNewCustomer}
                   />

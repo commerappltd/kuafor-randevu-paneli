@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { format, addDays } from "date-fns";
 import { tr } from "date-fns/locale";
-import { formatPrice, formatDateTR } from "@/lib/utils";
+import { formatPrice, formatDateTR, formatPhoneNumber, isValidPhoneNumber, cn } from "@/lib/utils";
 import { Service, Staff } from "@/types";
 import {
   Scissors,
@@ -280,6 +280,10 @@ export default function RandevuAlPage() {
     try {
       if (!selectedService || !selectedTime || !customerName || !customerPhone) {
         throw new Error("Lütfen tüm zorunlu alanları doldurunuz.");
+      }
+
+      if (!isValidPhoneNumber(customerPhone)) {
+        throw new Error("Lütfen geçerli ve tam 13 haneli (+90 5XX XXX XX XX) telefon numaranızı eksiksiz giriniz.");
       }
 
       let targetStaffId = selectedStaff?.id;
@@ -829,20 +833,33 @@ export default function RandevuAlPage() {
                     </div>
 
                     <div>
-                      <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-1.5">
-                        Telefon Numaranız *
-                      </label>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">
+                          Telefon Numaranız *
+                        </label>
+                        <span className="text-[10px] font-bold text-zinc-500">13 Hane (+90 5XX...)</span>
+                      </div>
                       <div className="relative">
                         <Phone className="w-4 h-4 text-zinc-500 absolute left-3.5 top-3.5" />
                         <input
                           type="tel"
                           required
-                          placeholder="0532 123 45 67"
+                          placeholder="+90 5XX XXX XX XX"
                           value={customerPhone}
-                          onChange={(e) => setCustomerPhone(e.target.value)}
-                          className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-zinc-800 bg-[#0c0d14] text-xs font-medium text-white placeholder:text-zinc-600 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600"
+                          onChange={(e) => setCustomerPhone(formatPhoneNumber(e.target.value))}
+                          className={cn(
+                            "w-full pl-10 pr-3.5 py-2.5 rounded-xl border bg-[#0c0d14] text-xs font-medium text-white placeholder:text-zinc-600 focus:outline-none transition-all",
+                            customerPhone && !isValidPhoneNumber(customerPhone)
+                              ? "border-red-500/80 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                              : "border-zinc-800 focus:border-red-600 focus:ring-1 focus:ring-red-600"
+                          )}
                         />
                       </div>
+                      {customerPhone && !isValidPhoneNumber(customerPhone) && (
+                        <p className="text-[11px] font-semibold text-red-400 mt-1.5 flex items-center gap-1">
+                          <span>⚠️ Eksik rakam girdiniz. Telefon numaranız 13 haneli (+90 5XX XXX XX XX) olmalıdır.</span>
+                        </p>
+                      )}
                     </div>
 
                     <div className="sm:col-span-2">

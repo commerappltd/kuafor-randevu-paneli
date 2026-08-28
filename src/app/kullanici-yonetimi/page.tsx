@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import Header from "@/components/admin/Header";
 import AppointmentModal from "@/components/admin/AppointmentModal";
-import { formatDateTR } from "@/lib/utils";
+import { formatDateTR, formatPhoneNumber, isValidPhoneNumber } from "@/lib/utils";
 import { Customer, Staff } from "@/types";
 import {
   UserCog,
@@ -159,6 +159,11 @@ export default function KullaniciYonetimiPage() {
 
   const handleSaveUser = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isValidPhoneNumber(phone)) {
+      alert("Lütfen geçerli ve 13 haneli (+90 5XX XXX XX XX) telefon numarasını eksiksiz giriniz.");
+      return;
+    }
 
     const payload = {
       name,
@@ -587,16 +592,25 @@ export default function KullaniciYonetimiPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">
-                    Telefon Numarası *
+                    Telefon Numarası * (13 Hane)
                   </label>
                   <input
                     type="tel"
                     required
-                    placeholder="0532 123 45 67"
+                    placeholder="+90 5XX XXX XX XX"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-red-600"
+                    onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
+                    className={`w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border text-xs text-white placeholder:text-zinc-600 focus:outline-none ${
+                      phone && !isValidPhoneNumber(phone)
+                        ? "border-red-500/80 focus:border-red-500"
+                        : "border-zinc-800 focus:border-red-600"
+                    }`}
                   />
+                  {phone && !isValidPhoneNumber(phone) && (
+                    <p className="text-[10px] text-red-400 font-semibold mt-1">
+                      ⚠️ 13 haneli (+90 5XX...) eksiksiz giriniz.
+                    </p>
+                  )}
                 </div>
 
                 <div>
