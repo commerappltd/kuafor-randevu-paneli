@@ -75,7 +75,7 @@ export default function DashboardPage() {
         isRefreshing={refreshing}
       />
 
-      <main className="p-8 space-y-8 flex-1">
+      <main className="p-4 sm:p-8 space-y-6 sm:space-y-8 flex-1">
         {loading ? (
           <div className="flex items-center justify-center py-24">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-600"></div>

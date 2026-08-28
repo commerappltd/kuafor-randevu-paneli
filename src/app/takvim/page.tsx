@@ -145,7 +145,7 @@ export default function TakvimPage() {
         isRefreshing={loading}
       />
 
-      <main className="p-8 space-y-6 flex-1 flex flex-col">
+      <main className="p-4 sm:p-8 space-y-4 sm:space-y-6 flex-1 flex flex-col">
         {/* Calendar Controls Top Bar */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
           {/* Sol: Tarih Navigasyonu */}

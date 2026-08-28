@@ -129,7 +129,7 @@ export default function MusterilerPage() {
         isRefreshing={loading}
       />
 
-      <main className="p-8 space-y-6 flex-1">
+      <main className="p-4 sm:p-8 space-y-4 sm:space-y-6 flex-1">
         {/* Top Action Bar */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* Search */}

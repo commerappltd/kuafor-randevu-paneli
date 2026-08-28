@@ -160,7 +160,7 @@ export default function PersonelPage() {
         isRefreshing={loading}
       />
 
-      <main className="p-8 space-y-6 flex-1">
+      <main className="p-4 sm:p-8 space-y-4 sm:space-y-6 flex-1">
         {/* Top bar */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
           <p className="text-xs text-slate-500 font-medium">

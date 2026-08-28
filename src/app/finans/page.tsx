@@ -112,7 +112,7 @@ export default function FinansPage() {
         isRefreshing={loading}
       />
 
-      <main className="p-8 space-y-8 flex-1">
+      <main className="p-4 sm:p-8 space-y-6 sm:space-y-8 flex-1">
         {/* Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">

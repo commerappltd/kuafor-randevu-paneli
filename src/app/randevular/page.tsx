@@ -114,7 +114,7 @@ export default function RandevularPage() {
         isRefreshing={loading}
       />
 
-      <main className="p-8 space-y-6 flex-1">
+      <main className="p-4 sm:p-8 space-y-4 sm:space-y-6 flex-1">
         {/* Filters Bar */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
