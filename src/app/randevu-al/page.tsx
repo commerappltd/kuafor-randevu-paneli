@@ -186,6 +186,16 @@ export default function RandevuAlPage() {
   useEffect(() => {
     const init = async () => {
       try {
+        const savedUser = localStorage.getItem("kuafor_current_customer");
+        if (savedUser) {
+          const parsed = JSON.parse(savedUser);
+          if (parsed.name) setCustomerName(parsed.name);
+          if (parsed.phone) setCustomerPhone(parsed.phone);
+          if (parsed.email) setCustomerEmail(parsed.email);
+        }
+      } catch {}
+
+      try {
         const [servicesRes, staffRes] = await Promise.all([
           fetch("/api/services?activeOnly=true"),
           fetch("/api/staff?activeOnly=true"),
@@ -304,6 +314,14 @@ export default function RandevuAlPage() {
 
       const appData = await res.json();
       setCreatedAppointment(appData);
+
+      try {
+        localStorage.setItem(
+          "kuafor_current_customer",
+          JSON.stringify({ name: customerName, phone: customerPhone, email: customerEmail })
+        );
+      } catch {}
+
       setStep(5); // Success step
     } catch (err: any) {
       setErrorMessage(err.message);
@@ -754,6 +772,42 @@ export default function RandevuAlPage() {
                       </span>
                     </div>
                   </div>
+
+                  {/* VIP Üye Otomatik Bilgi Kartı */}
+                  {customerName || customerPhone ? (
+                    <div className="p-4 rounded-2xl bg-gradient-to-r from-red-950/40 via-[#12131a] to-[#12131a] border border-red-800/60 flex items-center justify-between shadow-lg shadow-red-950/20">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-red-600/20 border border-red-600/40 flex items-center justify-center text-red-500 font-black">
+                          <CheckCircle2 className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-black text-white">{customerName || "VIP Müşterimiz"}</span>
+                            <span className="text-[9px] bg-red-600 text-white font-bold px-2 py-0.5 rounded-full shadow-sm">
+                              Üye Bilgileri Otomatik Geldi
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-zinc-400 mt-0.5">
+                            {customerPhone} {customerEmail ? `• ${customerEmail}` : ""}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCustomerName("");
+                          setCustomerPhone("");
+                          setCustomerEmail("");
+                          try {
+                            localStorage.removeItem("kuafor_current_customer");
+                          } catch {}
+                        }}
+                        className="text-[11px] text-zinc-400 hover:text-red-400 transition-colors font-medium underline"
+                      >
+                        Temizle / Değiştir
+                      </button>
+                    </div>
+                  ) : null}
 
                   {/* Müşteri Formu */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
