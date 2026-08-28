@@ -6,13 +6,13 @@ import { formatPrice, formatDateTR } from "@/lib/utils";
 import { Appointment } from "@/types";
 
 interface WhatsAppModalProps {
-  isOpen: boolean;
+  isOpen?: boolean;
   onClose: () => void;
   appointment: Appointment | null;
 }
 
 export default function WhatsAppModal({
-  isOpen,
+  isOpen = true,
   onClose,
   appointment,
 }: WhatsAppModalProps) {
@@ -75,8 +75,8 @@ Sizi en iyi şekilde ağırlamak için hazırlıklarımız devam ediyor. Bilgini
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-zinc-800 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Modal Header */}
         <div className="px-6 py-4 bg-emerald-600 text-white flex items-center justify-between">
           <div className="flex items-center gap-2.5">

@@ -2,8 +2,8 @@
 
 @layer base {
   :root {
-    --background: #f8fafc;
-    --foreground: #0f172a;
+    --background: #090a0f;
+    --foreground: #f8fafc;
   }
 
   body {
@@ -21,26 +21,31 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #0f1117;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #27272a;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #dc2626;
 }
 
-.gold-gradient {
-  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+.red-gradient {
+  background: linear-gradient(135deg, #e11d48 0%, #dc2626 50%, #991b1b 100%);
 }
 
-.gold-glow {
-  box-shadow: 0 4px 20px -2px rgba(217, 119, 6, 0.25);
+.red-glow {
+  box-shadow: 0 4px 25px -2px rgba(220, 38, 38, 0.35);
 }
 
-.dark-gradient {
-  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+.dark-card {
+  background: linear-gradient(180deg, #12131a 0%, #0d0e14 100%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.dark-card:hover {
+  border-color: rgba(220, 38, 38, 0.3);
 }

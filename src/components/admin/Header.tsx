@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, RefreshCw, Calendar as CalendarIcon, Menu } from "lucide-react";
+import { Plus, RefreshCw, Calendar as CalendarIcon, Menu, Flame } from "lucide-react";
 import { formatDateTR } from "@/lib/utils";
 
 interface HeaderProps {
@@ -23,13 +23,13 @@ export default function Header({
   const todayStr = formatDateTR(new Date(), "d MMMM, EEEE");
 
   return (
-    <header className="bg-white border-b border-slate-200/80 px-4 sm:px-8 py-3.5 sm:py-5 flex items-center justify-between sticky top-0 z-30 backdrop-blur-md bg-white/90">
+    <header className="bg-[#0c0d14]/90 border-b border-zinc-800/80 px-4 sm:px-8 py-3.5 sm:py-5 flex items-center justify-between sticky top-0 z-30 backdrop-blur-md">
       <div className="flex items-center gap-3 min-w-0">
         {/* Mobile Hamburger Button */}
         {onOpenMobileMenu && (
           <button
             onClick={onOpenMobileMenu}
-            className="lg:hidden p-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors shrink-0"
+            className="lg:hidden p-2 rounded-xl border border-zinc-800 bg-zinc-900/80 text-zinc-300 hover:bg-zinc-800 transition-colors shrink-0"
             title="Menüyü Aç"
           >
             <Menu className="w-5 h-5" />
@@ -37,11 +37,11 @@ export default function Header({
         )}
 
         <div className="min-w-0">
-          <h2 className="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight truncate">
+          <h2 className="text-lg sm:text-2xl font-black text-white tracking-tight truncate flex items-center gap-2">
             {title}
           </h2>
           {description && (
-            <p className="text-xs text-slate-500 mt-0.5 truncate hidden sm:block">
+            <p className="text-xs text-zinc-400 mt-0.5 truncate hidden sm:block">
               {description}
             </p>
           )}
@@ -50,8 +50,8 @@ export default function Header({
 
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* Date Display (Desktop & Tablet) */}
-        <div className="hidden md:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-600">
-          <CalendarIcon className="w-4 h-4 text-slate-400" />
+        <div className="hidden md:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900/90 border border-zinc-800 text-xs font-medium text-zinc-300">
+          <CalendarIcon className="w-4 h-4 text-red-500" />
           <span>{todayStr}</span>
         </div>
 
@@ -60,10 +60,10 @@ export default function Header({
           <button
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="p-2 sm:p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors disabled:opacity-50"
+            className="p-2 sm:p-2.5 rounded-xl border border-zinc-800 bg-zinc-900/80 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors disabled:opacity-50"
             title="Yenile"
           >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-red-500" : ""}`} />
           </button>
         )}
 
@@ -71,7 +71,7 @@ export default function Header({
         {onNewAppointment && (
           <button
             onClick={onNewAppointment}
-            className="flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm shadow-md shadow-amber-500/20 transition-all active:scale-[0.98]"
+            className="flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-red-600 via-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm shadow-lg shadow-red-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span className="hidden sm:inline">Yeni Randevu</span>

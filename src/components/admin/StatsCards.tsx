@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Clock, DollarSign, UserCheck, TrendingUp, AlertCircle } from "lucide-react";
+import { Calendar, Clock, DollarSign, UserCheck, TrendingUp, AlertCircle, Flame } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 
 interface StatsCardsProps {
@@ -20,20 +20,18 @@ export default function StatsCards({
     {
       title: "Bugünkü Randevular",
       value: `${todayCount} Randevu`,
-      subtitle: "Günün toplam rezervasyonu",
+      subtitle: "Günün toplam seansı",
       icon: Calendar,
-      color: "from-blue-600 to-indigo-600",
-      textColor: "text-blue-600",
-      bgColor: "bg-blue-500/10",
+      textColor: "text-red-400",
+      iconBg: "bg-red-500/10 text-red-500 border border-red-500/20",
     },
     {
       title: "Bekleyen Onaylar",
       value: `${pendingCount} Talep`,
-      subtitle: pendingCount > 0 ? "Onay bekleyen randevular var" : "Tüm talepler yanıtlandı",
+      subtitle: pendingCount > 0 ? "İşlem bekleyen rezervasyon" : "Tüm talepler yanıtlandı",
       icon: AlertCircle,
-      color: "from-amber-500 to-orange-500",
-      textColor: "text-amber-600",
-      bgColor: "bg-amber-500/10",
+      textColor: pendingCount > 0 ? "text-amber-400" : "text-zinc-300",
+      iconBg: "bg-amber-500/10 text-amber-500 border border-amber-500/20",
       badge: pendingCount > 0 ? "İncele" : null,
     },
     {
@@ -41,48 +39,51 @@ export default function StatsCards({
       value: formatPrice(todayRevenue),
       subtitle: "Onaylanan ve tamamlanan",
       icon: DollarSign,
-      color: "from-emerald-500 to-teal-600",
-      textColor: "text-emerald-600",
-      bgColor: "bg-emerald-500/10",
+      textColor: "text-emerald-400",
+      iconBg: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
     },
     {
-      title: "Aktif Uzmanlar",
-      value: `${activeStaffCount} Personel`,
-      subtitle: "Salonda görevde",
+      title: "Uzman Kadro",
+      value: `${activeStaffCount} Stilist`,
+      subtitle: "Salonda aktif görevde",
       icon: UserCheck,
-      color: "from-purple-500 to-violet-600",
-      textColor: "text-purple-600",
-      bgColor: "bg-purple-500/10",
+      textColor: "text-red-300",
+      iconBg: "bg-red-500/10 text-red-400 border border-red-500/20",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
       {cards.map((card, index) => {
         const Icon = card.icon;
         return (
           <div
             key={index}
-            className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:shadow-md transition-all relative overflow-hidden group"
+            className="bg-[#12131a] rounded-2xl p-5 border border-zinc-800/90 shadow-lg hover:border-red-600/40 transition-all duration-200 relative overflow-hidden group"
           >
+            {/* Top red subtle line */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-red-600/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
             <div className="flex items-start justify-between">
               <div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
                   {card.title}
                 </span>
-                <h3 className="text-2xl font-bold text-slate-900 mt-1.5">{card.value}</h3>
-                <p className="text-xs text-slate-400 mt-1">{card.subtitle}</p>
+                <h3 className="text-2xl font-black text-white mt-1.5">{card.value}</h3>
+                <p className="text-xs text-zinc-400 mt-1">{card.subtitle}</p>
               </div>
 
-              <div className={`w-11 h-11 rounded-xl ${card.bgColor} ${card.textColor} flex items-center justify-center shrink-0`}>
+              <div className={`w-11 h-11 rounded-xl ${card.iconBg} flex items-center justify-center shrink-0`}>
                 <Icon className="w-5 h-5" />
               </div>
             </div>
 
             {card.badge && (
-              <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-amber-600 font-medium">
-                <span>İşlem gerekiyor</span>
-                <span className="bg-amber-100 px-2 py-0.5 rounded-full font-bold">!</span>
+              <div className="mt-3 pt-3 border-t border-zinc-800 flex items-center justify-between text-xs text-amber-400 font-semibold">
+                <span>Bekleyen onay var</span>
+                <span className="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full text-[10px] font-bold border border-amber-500/30">
+                  Aksiyon Gerekiyor
+                </span>
               </div>
             )}
           </div>

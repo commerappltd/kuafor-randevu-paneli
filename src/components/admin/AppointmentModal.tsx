@@ -173,26 +173,26 @@ export default function AppointmentModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-zinc-800 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Modal Header */}
-        <div className="px-6 py-4.5 bg-slate-900 text-white flex items-center justify-between">
+        <div className="px-6 py-4.5 bg-[#0c0d14] text-white flex items-center justify-between border-b border-zinc-800">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-amber-500/20 text-amber-400">
+            <div className="p-2 rounded-lg bg-red-600/20 text-red-500 border border-red-500/30">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
               <h3 className="font-bold text-base">
                 {editAppointment ? "Randevuyu Düzenle" : "Yeni Randevu Oluştur"}
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-zinc-400">
                 {editAppointment ? `${editAppointment.customer.name} için randevu` : "Müşteri ve saat bilgilerini giriniz"}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+            className="text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-zinc-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -409,7 +409,7 @@ export default function AppointmentModal({
             <button
               type="submit"
               disabled={submitting || loadingData}
-              className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 px-5 py-2.5 rounded-xl font-semibold text-sm shadow-md shadow-amber-500/20 transition-all disabled:opacity-50"
+              className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-red-600/30 transition-all disabled:opacity-50"
             >
               {submitting ? "Kaydediliyor..." : editAppointment ? "Güncelle" : "Randevuyu Kaydet"}
             </button>
