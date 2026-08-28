@@ -106,12 +106,32 @@ export default function RandevularPage() {
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
+      setAppointments((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, status: newStatus as any } : a))
+      );
       const res = await fetch(`/api/appointments/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
       if (res.ok) fetchAppointments();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleConfirmAndOpenWhatsApp = async (app: Appointment) => {
+    try {
+      setAppointments((prev) =>
+        prev.map((a) => (a.id === app.id ? { ...a, status: "CONFIRMED" } : a))
+      );
+      await fetch(`/api/appointments/${app.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "CONFIRMED" }),
+      });
+      fetchAppointments();
+      setWhatsAppAppointment({ ...app, status: "CONFIRMED" });
     } catch (err) {
       console.error(err);
     }
@@ -305,11 +325,12 @@ export default function RandevularPage() {
 
                             {app.status === "PENDING" && (
                               <button
-                                onClick={() => handleStatusChange(app.id, "CONFIRMED")}
-                                className="p-1.5 rounded-lg bg-blue-950/40 text-blue-400 hover:bg-blue-900/50 transition-colors border border-blue-800/40"
-                                title="Onayla"
+                                onClick={() => handleConfirmAndOpenWhatsApp(app)}
+                                className="p-1.5 rounded-lg bg-blue-950/40 text-blue-400 hover:bg-blue-900/50 transition-colors border border-blue-800/40 flex items-center gap-1 text-[11px] font-bold px-2"
+                                title="Onayla & WhatsApp Bilgilendirmesi Gönder"
                               >
                                 <CheckCircle className="w-4 h-4" />
+                                <span>Onayla & WA Gönder</span>
                               </button>
                             )}
 

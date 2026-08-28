@@ -875,6 +875,21 @@ export default function RandevuAlPage() {
                     </div>
                   </div>
 
+                  {/* 30 Dakika İptal / Değişiklik Kuralı Bilgilendirme Kutusu */}
+                  <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 flex items-start gap-3 text-xs shadow-md">
+                    <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                      <Clock className="w-4 h-4" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-extrabold text-amber-300 flex items-center gap-1.5">
+                        <span>Önemli Bilgilendirme & İptal Kuralı</span>
+                      </h4>
+                      <p className="text-zinc-300 leading-relaxed text-[11px]">
+                        Oluşturduğunuz randevu saatinde gelemeyecekseniz; salonumuzun çalışma düzeni ve diğer müşterilerimizin mağdur olmaması adına lütfen <strong className="text-white font-black underline">en az 30 dakika (yarım saat) öncesinden</strong> web sitemiz veya mobil uygulamamız üzerinden iptal / değişiklik işlemi yapınız.
+                      </p>
+                    </div>
+                  </div>
+
                   <div className="pt-6 flex items-center justify-between border-t border-zinc-800">
                     <button
                       type="button"

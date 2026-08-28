@@ -41,16 +41,20 @@ export default function WhatsAppModal({
 
 Sizi ağırlamaktan mutluluk duyarız. Randevunuzda herhangi bir değişiklik yapmak isterseniz lütfen bu mesajı yanıtlayınız. ✨`,
 
-    confirmation: `Sayın ${appointment.customer.name}, 
+    confirmation: `Sayın *${appointment.customer.name}*,
 
-✅ Randevu talebiniz başarıyla *ONAYLANMIŞTIR*.
+✅ Kuaför Ali Karayel randevunuz başarıyla *ONAYLANMIŞTIR*!
 
-📅 *Tarih:* ${formatDateTR(appointment.dateStr, "d MMMM yyyy, EEEE")}
-⏰ *Saat:* ${appointment.startTime}
 ✂️ *Hizmet:* ${appointment.service.name}
-💈 *Uzman:* ${appointment.staff.name}
+💈 *Uzman Kuaför:* ${appointment.staff.name}
+📅 *Tarih:* ${formatDateTR(appointment.dateStr, "d MMMM yyyy, EEEE")}
+⏰ *Saat:* ${appointment.startTime} - ${appointment.endTime}
+📍 *Adres:* Nispetiye Caddesi No:42, Levent / İstanbul
+💰 *Ücret:* ${formatPrice(appointment.totalPrice)}
 
-Görüşmek üzere, keyifli günler dileriz! ✂️`,
+⚠️ *ÖNEMLİ BİLGİLENDİRME:* Randevunuza katılamayacaksanız, kuaförlerimizin çalışma düzeni ve diğer müşterilerimizin mağdur olmaması adına lütfen en az 30 dakika (yarım saat) öncesinden mobil uygulamamız veya web sitemiz üzerinden randevunuzu iptal ediniz veya bildiriniz.
+
+Sizi salonumuzda ağırlamaktan mutluluk duyacağız! 👑✂️`,
 
     delay: `Sayın ${appointment.customer.name}, 
 
